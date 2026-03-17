@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Makmai Tennis Club - Booking System (PWA)</title>
+    <meta name="description" content="ระบบจองคอร์ตเทนนิสหมู่บ้านแมกไม้ (Mobile Version)">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MakmaiTennis">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135712.png">
+
+    <!-- Libraries CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/th.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b; 
+            overflow-x: hidden; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Mobile Optimization for PWA */
+        @media (display-mode: standalone) {
+            body { padding-top: env(safe-area-inset-top); }
+            header { padding-top: 1rem; }
+        }
+
+        .glass-panel { background: #ffffff; border-radius: 1rem; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
+        .table-scroll { max-height: 450px; overflow-y: auto; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
+        
+        .flatpickr-calendar { font-family: 'Kanit', sans-serif; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: none; }
+        .flatpickr-day.selected { background: #2563eb !important; border-color: #2563eb !important; }
+        
+        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        #customAlert { display: none; position: fixed; top: 20px; right: 20px; z-index: 9999; animation: slideIn 0.3s ease-out; }
+        
+        .slot-free { background-color: #ecfdf5; color: #065f46; cursor: pointer; }
+        .slot-booked { background-color: #ffedd5; color: #c2410c; }
+        .slot-paid { background-color: #dbeafe; color: #1e40af; }
+        .slot-past { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        .slot-played { background-color: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .modal-active, .modal-active * { visibility: visible; }
+            .modal-active { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; display: block !important; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="p-2 sm:p-4 md:p-8">
+
+    <!-- PWA Registration & Install Script -->
+    <script>
+        // 1. Dynamic Manifest Generation
+        const manifest = {
+            "name": "Makmai Tennis Club",
+            "short_name": "MakmaiTennis",
+            "start_url": "./index.html",
+            "display": "standalone",
+            "background_color": "#f8fafc",
+            "theme_color": "#2563eb",
+            "icons": [
+                {
+                    "src": "https://cdn-icons-png.flaticon.com/512/3135/3135712.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any maskable"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifest);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+
+        // 2. Service Worker Registration (Fixed URL protocol error)
+        if ('serviceWorker' in navigator) {
+            // เบราว์เซอร์ไม่อนุญาตให้ใช้ Blob URL ในการลงทะเบียน Service Worker เนื่องจากเหตุผลด้านความปลอดภัย
+            // จึงเปลี่ยนไปเรียกใช้ไฟล์ sw.js แบบปกติแทน
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => {
+                    console.log('ServiceWorker registration skipped. To enable full offline support on GitHub Pages, create an empty "sw.js" file.');
+                });
+            });
+        }
+    </script>
+
+    <!-- Notification -->
+    <div id="customAlert" class="bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-[90%] md:w-auto max-w-sm">
+        <svg class="w-6 h-6 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="alertMessage" class="font-bold text-sm md:text-base"></span>
+    </div>
+
+    <!-- Hidden Inputs -->
+    <input type="file" id="updateSlipInput" class="hidden" accept="image/*">
+    <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="window.importBackupFile(event)">
+
+    <div class="max-w-[1400px] mx-auto w-full pb-10">
+        <!-- Maintenance Warning -->
+        <div id="maintenanceWarningBanner" class="hidden bg-red-600 text-white text-center py-3 px-4 font-bold text-xs sm:text-base animate-pulse shadow-md mb-6 rounded-xl flex items-center justify-center gap-2 border-2 border-red-400">
+            <span>⚠️ ถึงรอบบำรุงรักษาฐานข้อมูล! กรุณา Backup และลบข้อมูลเก่า</span>
+        </div>
+
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
+            <div class="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    <span class="bg-blue-600 text-white p-1 rounded">🎾</span> แมกไม้เทนนิสคลับ
+                </h1>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Mobile Online Version</p>
+            </div>
+
+            <div class="flex flex-1 justify-center md:justify-end gap-2 flex-wrap items-center w-full">
+                <div id="mainActionButtons" class="flex gap-2 flex-wrap hidden justify-center md:justify-end w-full md:w-auto">
+                    <button onclick="window.openExportModal()" class="px-3 py-2 bg-green-600 text-white rounded-xl text-xs font-bold shadow-lg">📊 Excel</button>
+                    <button onclick="window.openReportModal()" class="px-3 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-lg">📈 รายงาน</button>
+                    <button onclick="window.toggleAdminMode()" id="adminBtn" class="px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-xs font-bold">🔒 Admin</button>
+                </div>
+                <button id="loginBtn" onclick="window.toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold shadow-lg w-full md:w-auto">🔐 เข้าสู่ระบบ</button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Left: Booking Form -->
+            <div id="leftColumn" class="lg:col-span-4 no-print hidden">
+                <div class="glass-panel p-4 border border-slate-200" id="bookingPanel">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-slate-700" id="formTitle">จองคอร์ต</h2>
+                        <button type="button" onclick="window.togglePastBookingMode()" id="togglePastModeBtn" class="text-[10px] px-2 py-1 bg-slate-100 rounded-lg font-bold">บันทึกย้อนหลัง</button>
+                    </div>
+
+                    <form id="bookingForm" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">วันที่</label>
+                                <input type="text" id="dateInput" name="date" required class="w-full border rounded-lg px-3 py-2 text-sm font-bold bg-white">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">สนาม</label>
+                                <select name="court" class="w-full border rounded-lg px-3 py-2 text-sm font-bold">
+                                    <option value="สนาม 1">สนาม 1</option>
+                                    <option value="สนาม 2">สนาม 2</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">เวลาเริ่ม</label>
+                                <select name="time" id="timeSelect" onchange="window.updateHourOptions()" class="w-full border rounded-lg px-3 py-2 text-sm font-bold"></select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase">จำนวนชม.</label>
+                                <select name="hours" id="hoursSelect" onchange="window.calculateTotal()" class="w-full border rounded-lg px-3 py-2 text-sm font-bold text-blue-600"></select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <input type="text" id="inputName" name="customerName" required placeholder="ชื่อผู้จอง" class="w-full border rounded-lg px-3 py-2 text-sm">
+                            <input type="tel" id="inputPhone" name="phoneNumber" placeholder="เบอร์โทร 10 หลัก" required maxlength="10" class="w-full border rounded-lg px-3 py-2 text-sm" oninput="window.autoFillFromPhone(this.value)">
+                            <div class="flex gap-2">
+                                <span class="text-sm self-center text-slate-400">125/</span>
+                                <input type="text" id="inputAddress" name="address" required placeholder="เลขที่" class="w-20 border rounded-lg px-3 py-2 text-sm text-center" onblur="window.autoFillFromAddress(this.value)">
+                                <input type="text" id="inputOwner1" name="ownerName1" placeholder="เจ้าของแปลง" class="flex-1 border rounded-lg px-3 py-2 text-sm bg-slate-50">
+                            </div>
+                            <input type="file" id="slipInput" accept="image/*" class="hidden" onchange="window.updateFileName(this)">
+                            <label for="slipInput" id="slipFileName" class="block w-full text-center py-2 bg-slate-100 rounded-xl text-xs text-slate-500 border border-dashed border-slate-300 cursor-pointer">อัพโหลดสลิป (ถ้ามี)</label>
+                        </div>
+
+                        <div class="p-3 bg-blue-50 rounded-xl flex justify-between items-center">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase">ยอดรวม:</span>
+                            <span id="totalPriceDisplay" class="text-xl font-black text-blue-700">฿0</span>
+                        </div>
+
+                        <button id="submitBtn" type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform">ยืนยันการจอง</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Schedule -->
+            <div id="rightColumn" class="lg:col-span-12 space-y-4">
+                <div class="glass-panel border border-slate-200 no-print overflow-hidden">
+                    <div class="p-3 bg-white border-b flex flex-col md:flex-row justify-between items-center gap-2">
+                        <div id="weekDisplay" class="text-sm font-bold text-slate-700">กำลังโหลด...</div>
+                        <div class="flex gap-2">
+                            <button onclick="window.navigateWeek(-1)" class="p-1 bg-slate-100 rounded">◀</button>
+                            <button onclick="window.goToCurrentWeek()" class="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold">วันนี้</button>
+                            <button onclick="window.navigateWeek(1)" class="p-1 bg-slate-100 rounded">▶</button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 sticky top-0">
+                                <tr>
+                                    <th class="p-3 text-center w-10">#</th>
+                                    <th class="p-3">ผู้จอง</th>
+                                    <th class="p-3">วัน-เวลา</th>
+                                    <th class="p-3 text-right">ยอด</th>
+                                    <th id="thActions" class="p-3 text-center hidden">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bookingTableBody" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Grid Visual -->
+                <div class="glass-panel p-4 border border-slate-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-sm">ตารางสนาม</h3>
+                        <input type="text" id="scheduleDateInput" class="w-32 text-center text-sm font-bold bg-slate-50 rounded p-1 border">
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-center border-collapse">
+                            <tbody id="scheduleGridBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Re-using logic from original) -->
+    <div id="promptModal" class="fixed inset-0 bg-slate-900/80 z-[110] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center">
+            <h3 id="promptTitle" class="font-bold mb-4"></h3>
+            <input type="password" id="promptInput" class="w-full border rounded-xl px-4 py-2 text-center text-lg mb-4">
+            <div class="flex gap-2">
+                <button onclick="window.closeModal()" class="flex-1 py-2 bg-slate-100 rounded-xl">ยกเลิก</button>
+                <button id="promptSubmitBtn" class="flex-1 py-2 bg-blue-600 text-white rounded-xl">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Config จากโค้ดเดิมของคุณ
+        const config = {
+            apiKey: "AIzaSyA4ACuJR2m49qx-I56bkO-VIiyMHbnXXSM",
+            authDomain: "makmai-tennis-booking.firebaseapp.com",
+            projectId: "makmai-tennis-booking",
+            storageBucket: "makmai-tennis-booking.firebasestorage.app",
+            messagingSenderId: "804008227066",
+            appId: "1:804008227066:web:3996d65a9a2585970cd943"
+        };
+
+        // Global Variables
+        window.isLoggedIn = localStorage.getItem('makmai_session') === 'true';
+        window.adminMode = localStorage.getItem('makmai_admin') === 'true';
+        window.allBookingsCache = [];
+        window.currentFilterWeek = '';
+        let db, auth, collectionRef;
+
+        // Utilities
+        const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+        window.getThailandDate = () => new Date().toLocaleDateString('en-CA', {timeZone: 'Asia/Bangkok'});
+        window.getThailandHour = () => parseInt(new Date().toLocaleTimeString('en-GB', {timeZone: 'Asia/Bangkok', hour12: false}).split(':')[0]);
+        window.getWeekString = (dateStr) => {
+            const d = new Date(dateStr);
+            d.setHours(0,0,0,0);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const yearStart = new Date(d.getFullYear(), 0, 1);
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            return `${d.getFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+        };
+
+        window.showAlert = (msg) => {
+            const box = document.getElementById('customAlert');
+            document.getElementById('alertMessage').innerText = msg;
+            box.style.display = 'flex';
+            setTimeout(() => box.style.display = 'none', 3000);
+        };
+
+        window.closeModal = () => document.querySelectorAll('.fixed').forEach(m => m.classList.remove('modal-active'));
+
+        // UI Updates
+        window.updateLoginUI = () => {
+            const lb = document.getElementById('loginBtn');
+            const ab = document.getElementById('mainActionButtons');
+            const lc = document.getElementById('leftColumn');
+            const rc = document.getElementById('rightColumn');
+
+            if (window.isLoggedIn) {
+                lb.innerText = "🚪 ออกจากระบบ";
+                ab.classList.remove('hidden');
+                lc.classList.remove('hidden');
+                rc.classList.replace('lg:col-span-12', 'lg:col-span-8');
+            } else {
+                lb.innerText = "🔐 เข้าสู่ระบบ";
+                ab.classList.add('hidden');
+                lc.classList.add('hidden'); rc.classList.replace('lg:col-span-8', 'lg:col-span-12');
+            }
+            window.renderAll();
+        };
+
+        window.toggleLogin = async () => {
+            if (window.isLoggedIn) {
+                localStorage.removeItem('makmai_session'); window.isLoggedIn = false; window.updateLoginUI();
+            } else {
+                const pass = await window.customPrompt("กรุณาใส่รหัสผ่านสมาชิก:");
+                if (pass === "Admin125/000") {
+                    localStorage.setItem('makmai_session', 'true'); window.isLoggedIn = true; window.updateLoginUI();
+                } else if (pass) window.showAlert("❌ รหัสไม่ถูกต้อง");
+            }
+        };
+
+        window.customPrompt = (title) => new Promise(res => {
+            const m = document.getElementById('promptModal');
+            document.getElementById('promptTitle').innerText = title;
+            m.classList.add('modal-active');
+            document.getElementById('promptSubmitBtn').onclick = () => {
+                const val = document.getElementById('promptInput').value;
+                m.classList.remove('modal-active'); res(val);
+                document.getElementById('promptInput').value = '';
+            };
+            window.closeModal = () => { m.classList.remove('modal-active'); res(null); };
+        });
+
+        // Core Rendering
+        window.renderAll = () => {
+            window.renderTable();
+            window.renderGrid();
+            const d = new Date(window.currentFilterWeek.replace('-W', '-01-01')); // Rough calc for display
+            document.getElementById('weekDisplay').innerText = `สัปดาห์ปัจจุบัน: ${window.currentFilterWeek}`;
+        };
+
+        window.renderTable = () => {
+            const body = document.getElementById('bookingTableBody');
+            body.innerHTML = '';
+            const list = window.allBookingsCache.filter(b => b.week === window.currentFilterWeek);
+            if (!list.length) { body.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-slate-400">ไม่มีข้อมูลการจอง</td></tr>'; return; }
+            
+            list.sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).forEach((b, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 text-center font-bold">${i+1}</td>
+                    <td class="p-3"><div class="font-bold">${b.customerName}</div><div class="text-[10px]">125/${b.address}</div></td>
+                    <td class="p-3"><div class="font-bold">${b.date}</div><div class="text-blue-600">${b.time} (${b.hours} ชม.)</div></td>
+                    <td class="p-3 text-right font-black">฿${b.totalPrice}</td>
+                    <td class="p-3 text-center ${window.isLoggedIn ? '' : 'hidden'}"><button onclick="window.deleteBooking('${b.id}')" class="text-red-500">ลบ</button></td>
+                `;
+                body.appendChild(tr);
+            });
+        };
+
+        window.renderGrid = () => {
+            const body = document.getElementById('scheduleGridBody');
+            const date = document.getElementById('scheduleDateInput').value;
+            body.innerHTML = '';
+            for(let h=6; h<=20; h++) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="p-2 border bg-slate-50 font-bold text-[10px] w-12">${h}:00</td>`;
+                ["สนาม 1", "สนาม 2"].forEach(court => {
+                    const b = window.allBookingsCache.find(x => x.date === date && x.court === court && h >= parseInt(x.time) && h < parseInt(x.time) + x.hours);
+                    const td = document.createElement('td');
+                    td.className = `p-1 border text-[10px] ${b ? (b.slip ? 'slot-paid' : 'slot-booked') : 'slot-free'}`;
+                    td.innerText = b ? b.customerName : 'ว่าง';
+                    tr.appendChild(td);
+                });
+                body.appendChild(tr);
+            }
+        };
+
+        // Form Logic
+        window.updateHourOptions = () => {
+            const start = parseInt(document.getElementById('timeSelect').value);
+            const max = Math.min(2, 21 - start);
+            let html = '';
+            for(let i=1; i<=max; i++) html += `<option value="${i}">${i} ชม.</option>`;
+            document.getElementById('hoursSelect').innerHTML = html;
+            window.calculateTotal();
+        };
+
+        window.calculateTotal = () => {
+            const start = parseInt(document.getElementById('timeSelect').value);
+            const hrs = parseInt(document.getElementById('hoursSelect').value);
+            let total = 0;
+            for(let i=0; i<hrs; i++) total += (start+i >= 18) ? 150 : 100;
+            document.getElementById('totalPriceDisplay').innerText = `฿${total}`;
+        };
+
+        // Form Submit
+        document.getElementById('bookingForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const id = Date.now().toString();
+            const data = {
+                id,
+                date: fd.get('date'),
+                court: fd.get('court'),
+                time: fd.get('time'),
+                hours: parseInt(fd.get('hours')),
+                customerName: fd.get('customerName'),
+                phoneNumber: fd.get('phoneNumber'),
+                address: fd.get('address'),
+                totalPrice: parseInt(document.getElementById('totalPriceDisplay').innerText.replace('฿','')),
+                week: window.getWeekString(fd.get('date')),
+                timestamp: Date.now()
+            };
+
+            try {
+                await setDoc(doc(collectionRef, id), data);
+                window.showAlert("✅ จองสำเร็จแล้ว!");
+                e.target.reset(); window.renderAll();
+            } catch(err) { window.showAlert("❌ บันทึกไม่สำเร็จ"); }
+        };
+
+        window.deleteBooking = async (id) => {
+            if (confirm("ยืนยันการลบรายการนี้?")) {
+                await deleteDoc(doc(collectionRef, id));
+                window.showAlert("ลบข้อมูลแล้ว");
+            }
+        };
+
+        window.navigateWeek = (dir) => {
+            const d = new Date(window.currentFilterWeek.replace('-W', '-01-01'));
+            d.setDate(d.getDate() + (dir * 7));
+            window.currentFilterWeek = window.getWeekString(d.toLocaleDateString('en-CA'));
+            window.renderAll();
+        };
+
+        window.goToCurrentWeek = () => {
+            window.currentFilterWeek = window.getWeekString(window.getThailandDate());
+            window.renderAll();
+        };
+
+        // Initialization
+        const init = async () => {
+            try {
+                const app = initializeApp(config);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                collectionRef = collection(db, 'bookings');
+                await signInAnonymously(auth);
+
+                onSnapshot(collectionRef, (snap) => {
+                    window.allBookingsCache = [];
+                    snap.forEach(d => window.allBookingsCache.push(d.data()));
+                    window.renderAll();
+                });
+
+                // Setup Datepickers
+                flatpickr("#dateInput", { locale: 'th', defaultDate: window.getThailandDate() });
+                flatpickr("#scheduleDateInput", { 
+                    locale: 'th', 
+                    defaultDate: window.getThailandDate(),
+                    onChange: () => window.renderGrid()
+                });
+
+                // Setup Time
+                let tHtml = ''; for(let i=6; i<=20; i++) tHtml += `<option value="${i}:00">${i}:00</option>`;
+                document.getElementById('timeSelect').innerHTML = tHtml;
+                
+                window.goToCurrentWeek();
+                window.updateLoginUI();
+            } catch(e) { console.error(e); }
+        };
+
+        init();
+    </script>
+</body>
+</html>
