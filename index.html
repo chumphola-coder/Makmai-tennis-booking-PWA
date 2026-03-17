@@ -7,12 +7,14 @@
     <meta name="description" content="ระบบจองคอร์ตเทนนิสหมู่บ้านแมกไม้ (Online Cloud Version)">
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#1e293b">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MakmaiTennis">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135712.png">
-
+    <meta name="apple-mobile-web-app-title" content="Makmai Tennis">
+    <!-- Icon สำหรับ iOS (เปลี่ยน URL เป็นโลโก้จริงๆ ของคุณได้ในภายหลัง) -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/8892/8892212.png">
+    
     <!-- Libraries CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -25,14 +27,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; -webkit-tap-highlight-color: transparent;}
-        
-        /* Mobile Optimization for PWA */
-        @media (display-mode: standalone) {
-            body { padding-top: env(safe-area-inset-top); }
-            header { padding-top: 1rem; }
-        }
-
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; color: #1e293b; overflow-x: hidden; }
         .glass-panel { background: #ffffff; border-radius: 1rem; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
         .table-scroll { max-height: 450px; overflow-y: auto; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
         
@@ -86,41 +81,6 @@
 </head>
 <body class="p-2 sm:p-4 md:p-8">
 
-    <!-- PWA Registration Script -->
-    <script>
-        const manifest = {
-            "name": "Makmai Tennis Club",
-            "short_name": "MakmaiTennis",
-            "start_url": "./index.html",
-            "display": "standalone",
-            "background_color": "#f8fafc",
-            "theme_color": "#2563eb",
-            "icons": [
-                {
-                    "src": "https://cdn-icons-png.flaticon.com/512/3135/3135712.png",
-                    "sizes": "512x512",
-                    "type": "image/png",
-                    "purpose": "any maskable"
-                }
-            ]
-        };
-        const stringManifest = JSON.stringify(manifest);
-        const blob = new Blob([stringManifest], {type: 'application/json'});
-        const manifestURL = URL.createObjectURL(blob);
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = manifestURL;
-        document.head.appendChild(link);
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => {
-                    console.log('ServiceWorker registration skipped. Create "sw.js" for offline support.');
-                });
-            });
-        }
-    </script>
-
     <!-- Notification -->
     <div id="customAlert" class="bg-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-[90%] md:w-auto max-w-sm">
         <svg class="w-6 h-6 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -144,7 +104,7 @@
                 <h1 class="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-600 text-white p-1 rounded">🎾</span> แมกไม้เทนนิสคลับ
                 </h1>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1 mb-3">Online Database System (PWA)</p>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1 mb-3">Online Database System</p>
                 <div class="inline-block text-[11px] text-slate-600 font-medium bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm w-full md:w-auto">
                     <span class="text-blue-600 font-bold">* หมายเหตุ:</span> 06:00-18:00 ค่าสนาม 100 บาท/ชม. | 18:00-21:00 ค่าสนาม 150 บาท/ชม.
                 </div>
@@ -178,6 +138,13 @@
                         🔒 ปลดล็อกผู้ดูแล
                     </button>
                 </div>
+                
+                <!-- PWA Install Button (Hidden by default, shown via JS if supported) -->
+                <button id="installPwaBtn" class="hidden px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all items-center gap-2 shadow-md md:mt-0 w-full md:w-auto justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    ติดตั้งแอป
+                </button>
+
                 <!-- Login Button -->
                 <button id="loginBtn" onclick="window.toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg mt-2 md:mt-0 w-full md:w-auto justify-center">
                     🔐 เข้าสู่ระบบ (สำหรับจอง)
@@ -343,7 +310,8 @@
         </div>
     </div>
 
-    <!-- Export Excel Modal -->
+    <!-- Modals Configuration (Export, Confirm, Prompt, Maintenance, Edit, Receipt, Report, Backup, Slip Preview) -->
+    <!-- (All modals remains exactly the same as original) -->
     <div id="exportExcelModal" class="fixed inset-0 bg-slate-900/90 z-[100] hidden flex-col items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 relative shadow-2xl">
             <button onclick="window.closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
@@ -538,6 +506,114 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- PWA Setup Script (Dynamic Single File PWA) -->
+    <!-- ========================================== -->
+    <script>
+        (function initPWA() {
+            // 1. Create Web Manifest Dynamically
+            const manifestData = {
+                "name": "Makmai Tennis Club",
+                "short_name": "Makmai Tennis",
+                "description": "ระบบจองคอร์ตเทนนิสหมู่บ้านแมกไม้",
+                "start_url": "./",
+                "display": "standalone",
+                "background_color": "#f8fafc",
+                "theme_color": "#1e293b",
+                "icons": [
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/8892/8892212.png",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "https://cdn-icons-png.flaticon.com/512/8892/8892212.png",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            };
+            
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = manifestUrl;
+            document.head.appendChild(manifestLink);
+
+            // 2. Create Service Worker Dynamically
+            const swCode = `
+                const CACHE_NAME = 'makmai-tennis-pwa-v1';
+                const urlsToCache = [
+                    'https://cdn.tailwindcss.com',
+                    'https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap',
+                    'https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css'
+                ];
+
+                self.addEventListener('install', event => {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+                    );
+                });
+
+                self.addEventListener('fetch', event => {
+                    // ใช้ Network First สำหรับ PWA เพื่อให้ได้ข้อมูลจองล่าสุดเสมอ 
+                    // ถ้าหลุดเน็ต ค่อยดึงโครงร่างจาก Cache
+                    if (event.request.method !== 'GET') return;
+                    event.respondWith(
+                        fetch(event.request).catch(() => caches.match(event.request))
+                    );
+                });
+            `;
+            
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(swBlob);
+
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register(swUrl)
+                        .then(reg => console.log('ServiceWorker registered automatically.'))
+                        .catch(err => console.log('ServiceWorker registration failed: ', err));
+                });
+            }
+
+            // 3. Handle Install Prompt
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // ป้องกันไม่ให้เบราว์เซอร์โชว์ Popup เอง (ให้เราควบคุมเอง)
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                // แสดงปุ่มติดตั้ง
+                const installBtn = document.getElementById('installPwaBtn');
+                if(installBtn) {
+                    installBtn.classList.remove('hidden');
+                    installBtn.classList.add('flex');
+                    
+                    installBtn.onclick = async () => {
+                        // โชว์หน้าจอถามการติดตั้ง
+                        deferredPrompt.prompt();
+                        // รอผลลัพธ์ว่าผู้ใช้กดตกลงหรือยกเลิก
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            installBtn.style.display = 'none'; // ซ่อนปุ่มถ้าติดตั้งแล้ว
+                        }
+                        deferredPrompt = null;
+                    };
+                }
+            });
+
+            // ตรวจจับกรณีติดตั้งเรียบร้อยแล้วให้ซ่อนปุ่ม
+            window.addEventListener('appinstalled', () => {
+                const installBtn = document.getElementById('installPwaBtn');
+                if(installBtn) installBtn.style.display = 'none';
+                console.log('PWA was installed');
+            });
+        })();
+    </script>
+    <!-- ========================================== -->
+
+
     <!-- FIREBASE MODULE SCRIPT (ONLINE VERSION) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -545,13 +621,14 @@
         import { getFirestore, collection, doc, setDoc, deleteDoc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const config = {
-            apiKey: "AIzaSyA2x2niZPk_htVJivSDEHTe_eKtalkqxBQ",
-            authDomain: "makmai-tennis-pwa.firebaseapp.com",
-            projectId: "makmai-tennis-pwa",
-            storageBucket: "makmai-tennis-pwa.firebasestorage.app",
-            messagingSenderId: "688459083355",
-            appId: "1:688459083355:web:58ced9e55f9cbd8c86d97e",
-            measurementId: "G-VGWMHJHNWN"
+            apiKey: "AIzaSyA4ACuJR2m49qx-I56bkO-VIiyMHbnXXSM",
+            authDomain: "makmai-tennis-booking.firebaseapp.com",
+            databaseURL: "https://makmai-tennis-booking-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "makmai-tennis-booking",
+            storageBucket: "makmai-tennis-booking.firebasestorage.app",
+            messagingSenderId: "804008227066",
+            appId: "1:804008227066:web:3996d65a9a2585970cd943",
+            measurementId: "G-LK3TBJ16D0"
         };
 
         window.isLoggedIn = localStorage.getItem('makmai_session') === 'true';
@@ -832,7 +909,7 @@
 125/164/2,เฉลิม ทองเกลา
 125/165,อนุวัฒน์  สงวนศักดิ์ภักดี
 125/166,บันดาล ซื่อตรง
-125/167,นงลักษณ์   สายธัญญา
+125/167,นงลักษณ์    สายธัญญา
 125/168,กุลวิวัฒน์ พรหมสวัสดิ์
 125/169,นิวัติ  อัศววงศาโรจน์
 125/170,กวิน  ติรศานต์
@@ -855,7 +932,7 @@
 125/187,คุณอภิสิทธิ์  จิตต์คนึงโชติ
 125/188,คุณเจริญพร  ชัยรัตน์
 125/189,พลเรือเอกสินธุ วงศ์ไพบูลย์
-125/190,คุณณัฐณิชา   ประสิทธิ์รัฐสินธุ์
+125/190,คุณณัฐณิชา    ประสิทธิ์รัฐสินธุ์
 125/191,คุณสุชาติ  (พันเอกหญิง พูนทรัพย์) โตจำเริญ
 125/192,คุณประยูร  หมีเงิน
 125/193,คุณละออง สายคำภา
@@ -1092,7 +1169,7 @@
 125/422,คุณอิศรา  วาจิตร
 125/423,คุณสมศรี  วรพิพัฒน์
 125/424,คุณคิรีรัตน์ งามศรีประเสริฐ
-125/425,คุณคิรีรัตน์ งาศรีประเสริฐ
+125/425,คุณคิรีรัตน์ งามศรีประเสริฐ
 125/426,คุณกนกพร   โกวิรุฬห์สกุล
 125/427,คุณชัยรัตน์ ตังติวาจา
 125/428,คุณศิริพร-เขมรัฐ เดชสิงห์
@@ -1831,21 +1908,7 @@
         };
 
         window.deleteBooking = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบรายการในอดีตไม่ได้ (ต้องเปิดโหมดแอดมิน)"); window.itemToDeleteId = b?b.id:id; document.getElementById('confirmModal').classList.add('modal-active'); };
-        
-        document.getElementById('confirmDeleteBtn').onclick = async () => { 
-            if (window.itemToDeleteId === null) return; 
-            try { 
-                await deleteDoc(doc(collectionRef, String(window.itemToDeleteId))); 
-                window.showAlert("ลบรายการจองออนไลน์เรียบร้อย"); 
-                window.closeConfirmModal(); 
-            } catch (err) { 
-                if (err.code === 'permission-denied') {
-                    window.showAlert("❌ ลบไม่ได้: ปฏิเสธการเข้าถึง (เช็ค Rule ของ Firebase)");
-                } else {
-                    window.showAlert("ลบไม่ได้: " + err.message); 
-                }
-            } 
-        };
+        document.getElementById('confirmDeleteBtn').onclick = async () => { if (window.itemToDeleteId === null) return; try { await deleteDoc(doc(collectionRef, String(window.itemToDeleteId))); window.showAlert("ลบรายการจองออนไลน์เรียบร้อย"); window.closeConfirmModal(); } catch (err) { window.showAlert("ลบไม่ได้: " + err.message); } };
 
         const compressImage = (file) => {
             return new Promise((resolve, reject) => {
@@ -1887,7 +1950,6 @@
                 const newId = Date.now().toString() + Math.random().toString(36).substr(2, 4);
 
                 if (!collectionRef) return window.showAlert("❌ ฐานข้อมูลยังไม่ได้เชื่อมต่อ");
-                
                 await setDoc(doc(collectionRef, newId), { id: newId, date, court: fd.get('court'), time: time, hours: hours, lightHours: implicitLightHours, customerName: fd.get('customerName'), phoneNumber: fd.get('phoneNumber'), address: cleanAddress, ownerName: finalOwnerName, totalPrice: totalPrice, timestamp: Date.now(), week: weekStr, slip });
                 
                 e.target.reset(); window.updateFileName({files:[]}); window.showAlert(`บันทึก${window.isPastBookingMode ? 'ย้อนหลัง' : 'การจอง'}สำเร็จออนไลน์`);
@@ -1899,16 +1961,7 @@
                     window.updateHourOptions();
                 }
                 window.syncDateToSchedule();
-            } catch (err) { 
-                console.error(err); 
-                if (err.code === 'permission-denied') {
-                    window.showAlert("❌ บันทึกไม่สำเร็จ: ปฏิเสธการเข้าถึง (เช็ค Rule ของ Firebase)");
-                } else {
-                    window.showAlert("เกิดข้อผิดพลาด: " + err.message); 
-                }
-            } finally { 
-                btn.disabled = false; btn.innerHTML = '<span>ยืนยันการจอง</span>'; 
-            }
+            } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = '<span>ยืนยันการจอง</span>'; }
         };
 
         window.openEditBookingModal = (id) => {
@@ -1963,22 +2016,13 @@
                 
                 existing.date = date; existing.court = court; existing.time = time; existing.hours = hours; existing.lightHours = implicitLightHours; existing.totalPrice = totalPrice; existing.week = weekStr;
                 await setDoc(doc(collectionRef, String(existing.id)), existing);
-                
                 window.closeEditBookingModal(); 
                 window.syncScheduleToBooking(existing, false); 
                 window.showAlert("แก้ไขวัน-เวลาสำเร็จออนไลน์");
-            } catch (err) { 
-                console.error(err); 
-                if (err.code === 'permission-denied') {
-                    window.showAlert("❌ บันทึกไม่สำเร็จ: ปฏิเสธการเข้าถึง (เช็ค Rule ของ Firebase)");
-                } else {
-                    window.showAlert("เกิดข้อผิดพลาด: " + err.message); 
-                }
-            } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
+            } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
 
         window.viewSlipFromId = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if(b && b.slip) { window.currentViewingSlipId = id; document.getElementById('slipPreview').src = b.slip; const isP = window.isBookingPast(b); const btnC = document.getElementById('btnChangeSlipModal'), btnR = document.getElementById('btnRemoveSlipModal'); if (isP && !window.adminMode) { btnC.style.display = 'none'; btnR.style.display = 'none'; } else { btnC.style.display = 'flex'; btnR.style.display = 'flex'; } document.getElementById('slipModal').classList.add('modal-active'); } else window.showAlert("ไม่พบรูปสลิป"); };
-        
         window.changeSlipInModal = async () => { 
             const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentViewingSlipId)); 
             if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ เปลี่ยนสลิปไม่ได้ (เลยเวลาแล้ว)"); 
@@ -1988,11 +2032,8 @@
                 document.getElementById('updateSlipInput').click(); 
             } 
         };
-        
         window.triggerUploadSlip = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ อัปโหลดสลิปไม่ได้ (เลยเวลาแล้ว)"); window.currentUploadId = id; document.getElementById('updateSlipInput').click(); };
-        
         window.removeSlipInModal = () => { if (!window.currentViewingSlipId) return; window.removeSlip(window.currentViewingSlipId, true); };
-        
         window.removeSlip = async (id, fromM = false) => { 
             const b = window.allBookingsCache.find(x => String(x.id) === String(id)); 
             if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบสลิปไม่ได้ (เลยเวลาแล้ว)"); 
@@ -2003,13 +2044,7 @@
                 await setDoc(doc(collectionRef, String(b.id)), b); 
                 if (fromM) { window.closeModal(); document.getElementById('slipPreview').src = ''; } 
                 window.showAlert("ลบสลิปเรียบร้อย"); 
-            } catch (err) { 
-                if (err.code === 'permission-denied') {
-                    window.showAlert("❌ ลบไม่ได้: ปฏิเสธการเข้าถึง (เช็ค Rule ของ Firebase)");
-                } else {
-                    window.showAlert("ลบสลิปไม่สำเร็จ: " + err.message); 
-                }
-            } 
+            } catch (e) { window.showAlert("ลบสลิปไม่สำเร็จ"); } 
         };
         
         document.getElementById('updateSlipInput').onchange = async (e) => {
@@ -2064,47 +2099,21 @@
         window.initAuth = async function() {
             try {
                 app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
-                
-                let authSuccess = false;
-                try {
-                    await signInAnonymously(auth);
-                    authSuccess = true;
-                } catch (authErr) {
-                    console.error("Firebase Auth Error:", authErr);
-                    if (authErr.code === 'auth/configuration-not-found' || authErr.code === 'auth/operation-not-allowed') {
-                        window.showAlert("⚠️ ข้อผิดพลาด: โปรเจกต์นี้ยังไม่ได้เปิดใช้งาน 'Anonymous Sign-in' ในเมนู Authentication บน Firebase Console");
-                    } else {
-                        window.showAlert("⚠️ มีปัญหาในการเข้าสู่ระบบฐานข้อมูล: " + authErr.message);
+                await signInAnonymously(auth);
+                onSnapshot(collectionRef, (snap) => {
+                    window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
+                    window.autoDeletePastUnpaid();
+                    window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    window.renderAll();
+                    window.updateMaintenanceWarning();
+                    const s = document.getElementById('customerHistory'); 
+                    if(s) {
+                        s.innerHTML = '<option value="">▼ เลือกรายชื่อเดิม</option>';
+                        const unique = new Map(); window.allBookingsCache.forEach(d => { if (d.customerName && !unique.has(d.customerName)) unique.set(d.customerName, { name: d.customerName, phone: d.phoneNumber, address: d.address, owner: d.ownerName }); });
+                        unique.forEach(c => { const opt = document.createElement('option'); opt.value = JSON.stringify(c); opt.textContent = c.name; s.appendChild(opt); });
                     }
-                }
-
-                if (authSuccess) {
-                    onSnapshot(collectionRef, 
-                        (snap) => {
-                            window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
-                            window.autoDeletePastUnpaid();
-                            window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                            window.renderAll();
-                            window.updateMaintenanceWarning();
-                            const s = document.getElementById('customerHistory'); 
-                            if(s) {
-                                s.innerHTML = '<option value="">▼ เลือกรายชื่อเดิม</option>';
-                                const unique = new Map(); window.allBookingsCache.forEach(d => { if (d.customerName && !unique.has(d.customerName)) unique.set(d.customerName, { name: d.customerName, phone: d.phoneNumber, address: d.address, owner: d.ownerName }); });
-                                unique.forEach(c => { const opt = document.createElement('option'); opt.value = JSON.stringify(c); opt.textContent = c.name; s.appendChild(opt); });
-                            }
-                        },
-                        (error) => {
-                            console.error("Firestore Error:", error);
-                            if (error.code === 'permission-denied') {
-                                window.showAlert("⚠️ ปฏิเสธการเข้าถึง: กรุณาไปที่แท็บ 'Rules' ใน Firestore ให้อนุญาตการอ่าน/เขียนข้อมูล");
-                            } else {
-                                window.showAlert("⚠️ เกิดข้อผิดพลาดในการดึงข้อมูล: " + error.message);
-                            }
-                        }
-                    );
-                }
+                });
             } catch (e) { console.error(e); window.showAlert("เชื่อมต่อ Firebase ไม่สำเร็จ"); }
-            
             init(); window.updateLoginUI();
         }
         
