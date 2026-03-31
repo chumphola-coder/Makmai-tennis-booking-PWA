@@ -2,18 +2,10 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- อนุญาตให้ซูมเข้าออกบนมือถือและ PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Makmai Tennis Club - Booking System (Online)</title>
     <meta name="description" content="ระบบจองคอร์ตเทนนิสหมู่บ้านแมกไม้ (Online Cloud Version)">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1e293b">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Makmai Tennis">
-    <!-- Icon สำหรับ iOS (เปลี่ยน URL เป็นโลโก้จริงๆ ของคุณได้ในภายหลัง) -->
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/8892/8892212.png">
     
     <!-- Libraries CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +23,7 @@
         .glass-panel { background: #ffffff; border-radius: 1rem; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; }
         .table-scroll { max-height: 450px; overflow-y: auto; overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
         
+        /* Flatpickr Customization */
         .flatpickr-calendar { font-family: 'Kanit', sans-serif; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: none; }
         .flatpickr-day.selected { background: #2563eb !important; border-color: #2563eb !important; }
         
@@ -59,6 +52,7 @@
         .slot-past { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         .slot-played { background-color: #FFFBEB; color: #92400E; border: 1px solid #FCD34D; }
         
+        /* Highlight Animation */
         .slot-highlight { animation: pulse-ring 2s infinite; }
         @keyframes pulse-ring {
             0% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7); }
@@ -66,6 +60,7 @@
             100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0); }
         }
         
+        /* --- PRINT STYLES --- */
         @media print {
             @page { margin: 0; size: auto; }
             body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; background-color: white; }
@@ -88,7 +83,7 @@
     </div>
 
     <!-- Hidden Input for Updating Slip / Restore -->
-    <input type="file" id="updateSlipInput" class="hidden" accept="image/*">
+    <input type="file" id="updateSlipInput" class="hidden" accept="image/*" multiple>
     <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="window.importBackupFile(event)">
 
     <div class="max-w-[1400px] mx-auto w-full">
@@ -99,21 +94,24 @@
         </div>
 
         <!-- Header -->
-        <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 no-print">
+        <header class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 md:mb-6 no-print">
+            <!-- Left Side: Title -->
             <div class="flex-1 w-full flex flex-col items-center md:items-start text-center md:text-left">
-                <h1 class="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2 justify-center md:justify-start">
+                <h1 class="text-2xl md:text-3xl font-black text-slate-800 tracking-tight flex items-center gap-2 justify-center md:justify-start">
                     <span class="bg-blue-600 text-white p-1 rounded">🎾</span> แมกไม้เทนนิสคลับ
                 </h1>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1 mb-3">Online Database System</p>
-                <div class="inline-block text-[11px] text-slate-600 font-medium bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm w-full md:w-auto">
-                    <span class="text-blue-600 font-bold">* หมายเหตุ:</span> 06:00-18:00 ค่าสนาม 100 บาท/ชม. | 18:00-21:00 ค่าสนาม 150 บาท/ชม.
+                <p class="text-slate-400 text-[10px] md:text-xs font-bold uppercase tracking-widest mt-1 mb-2 md:mb-3">Online Database System</p>
+                <div class="inline-block text-[10px] md:text-[11px] text-slate-600 font-medium bg-blue-50 px-2 md:px-3 py-1.5 rounded-lg border border-blue-100 shadow-sm w-full md:w-auto">
+                    <span class="text-blue-600 font-bold">* หมายเหตุ:</span> 06:00-18:00 ค่าสนาม 100 บ./ชม. | 18:00-21:00 ค่าสนาม 150 บ./ชม.
                 </div>
             </div>
 
-            <div class="flex-shrink-0 my-2 md:my-0">
-                <img src="แมกไม้พื้นหลังดำ.jpg" class="h-24 w-auto object-contain rounded-lg shadow-sm" alt="Makmai Logo" onerror="this.style.display='none'">
+            <!-- Center: Logo (Hidden for Guest to save space on mobile) -->
+            <div id="logoContainer" class="flex-shrink-0 my-2 md:my-0 hidden md:block">
+                <img src="แมกไม้พื้นหลังดำ.jpg" class="h-16 md:h-24 w-auto object-contain rounded-lg shadow-sm" alt="Makmai Logo" onerror="this.style.display='none'">
             </div>
 
+            <!-- Right Side: Action Button -->
             <div class="flex flex-1 justify-center md:justify-end gap-2 flex-wrap items-center w-full">
                 <!-- Group of Admin/User Buttons (Hidden when Guest) -->
                 <div id="mainActionButtons" class="flex gap-2 flex-wrap hidden justify-center md:justify-end w-full md:w-auto">
@@ -138,28 +136,21 @@
                         🔒 ปลดล็อกผู้ดูแล
                     </button>
                 </div>
-                
-                <!-- PWA Install Button (Hidden by default, shown via JS if supported or on iOS) -->
-                <button id="installPwaBtn" class="hidden px-4 py-2 bg-gradient-to-r from-pink-500 to-orange-400 text-white rounded-xl text-sm font-bold hover:shadow-lg transition-all items-center gap-2 shadow-md md:mt-0 w-full md:w-auto justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    ติดตั้งแอปพลิเคชัน
-                </button>
-
-                <!-- Login Button -->
+                <!-- Login Button (Visible to all) -->
                 <button id="loginBtn" onclick="window.toggleLogin()" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg mt-2 md:mt-0 w-full md:w-auto justify-center">
                     🔐 เข้าสู่ระบบ (สำหรับจอง)
                 </button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <!-- Left: Booking Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
+            <!-- Left: Booking Form (Hidden by default for Guest) -->
             <div id="leftColumn" class="lg:col-span-4 no-print hidden">
-                <div class="glass-panel p-5 border border-slate-200 sticky top-4 w-full" id="bookingPanel">
+                <div class="glass-panel p-4 md:p-5 border border-slate-200 sticky top-4 w-full" id="bookingPanel">
                     
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-xl font-bold text-slate-700 transition-colors" id="formTitle">จองคอร์ตสนามเทนนิส</h2>
-                        <button type="button" id="togglePastModeBtn" onclick="window.togglePastBookingMode()" class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg text-[11px] font-bold hover:bg-slate-200 transition-colors flex items-center gap-1 shadow-sm">
+                        <h2 class="text-lg md:text-xl font-bold text-slate-700 transition-colors" id="formTitle">จองคอร์ตสนามเทนนิส</h2>
+                        <button type="button" id="togglePastModeBtn" onclick="window.togglePastBookingMode()" class="px-2 md:px-3 py-1 md:py-1.5 bg-slate-100 text-slate-600 rounded-lg text-[10px] md:text-[11px] font-bold hover:bg-slate-200 transition-colors flex items-center gap-1 shadow-sm">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             บันทึกย้อนหลัง
                         </button>
@@ -167,106 +158,107 @@
 
                     <form id="bookingForm" class="space-y-3">
                         <div class="bg-slate-50 p-3 rounded-2xl border border-slate-100 space-y-3">
-                            <div class="grid grid-cols-12 gap-3">
+                            <div class="grid grid-cols-12 gap-2 md:gap-3">
                                 <div class="col-span-8 space-y-1">
-                                    <label class="text-xs font-bold text-slate-500 uppercase">วันที่</label>
-                                    <input type="text" id="dateInput" name="date" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-lg font-bold text-slate-700 bg-white cursor-pointer shadow-sm" placeholder="เลือกวันที่">
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-500 uppercase">วันที่</label>
+                                    <input type="text" id="dateInput" name="date" required class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-sm md:text-lg font-bold text-slate-700 bg-white cursor-pointer shadow-sm" placeholder="เลือกวันที่">
                                 </div>
                                 <div class="col-span-4 space-y-1">
-                                    <label class="text-xs font-bold text-slate-500 uppercase">สนาม</label>
-                                    <select name="court" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm font-bold text-slate-700">
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-500 uppercase">สนาม</label>
+                                    <select name="court" class="w-full border border-slate-200 rounded-lg px-1 md:px-2 py-2 md:py-2.5 text-xs md:text-sm font-bold text-slate-700">
                                         <option value="สนาม 1">สนาม 1</option>
                                         <option value="สนาม 2">สนาม 2</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-12 gap-3">
+                            <div class="grid grid-cols-12 gap-2 md:gap-3">
                                 <div class="col-span-6">
-                                    <label class="text-xs font-bold text-slate-500 uppercase">เริ่ม</label>
-                                    <select name="time" id="timeSelect" onchange="window.updateHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-lg font-bold text-slate-700"></select>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-500 uppercase">เริ่ม</label>
+                                    <select name="time" id="timeSelect" onchange="window.updateHourOptions()" class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-sm md:text-lg font-bold text-slate-700"></select>
                                 </div>
                                 <div class="col-span-6">
-                                    <label class="text-xs font-bold text-slate-500 uppercase">ชม.</label>
-                                    <select name="hours" id="hoursSelect" onchange="window.calculateTotal()" class="w-full border border-slate-200 rounded-lg px-2 py-2.5 text-sm font-bold text-blue-600"></select>
+                                    <label class="text-[10px] md:text-xs font-bold text-slate-500 uppercase">ชม.</label>
+                                    <select name="hours" id="hoursSelect" onchange="window.calculateTotal()" class="w-full border border-slate-200 rounded-lg px-1 md:px-2 py-2 md:py-2.5 text-xs md:text-sm font-bold text-blue-600"></select>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-3">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-bold text-slate-500 uppercase">ข้อมูลผู้จอง</span>
-                                <select id="customerHistory" onchange="window.fillCustomerInfo(this.value)" class="text-xs text-blue-600 font-bold bg-transparent outline-none cursor-pointer">
+                                <span class="text-[10px] md:text-xs font-bold text-slate-500 uppercase">ข้อมูลผู้จอง</span>
+                                <select id="customerHistory" onchange="window.fillCustomerInfo(this.value)" class="text-[10px] md:text-xs text-blue-600 font-bold bg-transparent outline-none cursor-pointer">
                                     <option value="">▼ เลือกรายชื่อเดิม</option>
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <input type="text" id="inputName" name="customerName" required placeholder="ชื่อผู้จอง" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                                <input type="tel" id="inputPhone" name="phoneNumber" placeholder="เบอร์โทร (บังคับ)" required maxlength="10" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="window.autoFillFromPhone(this.value)">
+                            <div class="grid grid-cols-2 gap-2 md:gap-3">
+                                <input type="text" id="inputName" name="customerName" required placeholder="ชื่อผู้จอง" class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-xs md:text-sm">
+                                <input type="tel" id="inputPhone" name="phoneNumber" placeholder="เบอร์โทร (บังคับ)" required maxlength="10" class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-xs md:text-sm" oninput="window.autoFillFromPhone(this.value)">
                             </div>
                             
                             <div class="flex items-center gap-2 w-full">
                                 <div class="flex items-center shrink-0">
-                                    <span class="text-sm text-slate-400 mr-1">125/</span>
-                                    <input type="text" id="inputAddress" name="address" required placeholder="เลขที่" maxlength="3" class="w-16 border border-slate-200 rounded-lg px-2 py-2 text-sm text-center focus:ring-2 focus:ring-blue-500 transition-all" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.autoFillFromAddress(this.value); }" onblur="window.autoFillFromAddress(this.value)">
+                                    <span class="text-xs md:text-sm text-slate-400 mr-1">125/</span>
+                                    <input type="text" id="inputAddress" name="address" required placeholder="เลขที่" maxlength="3" class="w-12 md:w-16 border border-slate-200 rounded-lg px-1 md:px-2 py-2 text-xs md:text-sm text-center focus:ring-2 focus:ring-blue-500 transition-all" onkeydown="if(event.key === 'Enter') { event.preventDefault(); window.autoFillFromAddress(this.value); }" onblur="window.autoFillFromAddress(this.value)">
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <input type="text" id="inputOwner1" name="ownerName1" placeholder="ชื่อเจ้าของแปลง" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white transition-colors">
+                                    <input type="text" id="inputOwner1" name="ownerName1" placeholder="ชื่อเจ้าของแปลง" class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-xs md:text-sm bg-slate-50 focus:bg-white transition-colors">
                                 </div>
                             </div>
                             
                             <div class="w-full">
-                                <input type="text" id="inputOwner2" name="ownerName2" placeholder="ชื่อเจ้าของแปลง (ต่อ...)" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-slate-50 focus:bg-white transition-colors">
+                                <input type="text" id="inputOwner2" name="ownerName2" placeholder="ชื่อเจ้าของแปลง (ต่อ...)" class="w-full border border-slate-200 rounded-lg px-2 md:px-3 py-2 text-xs md:text-sm bg-slate-50 focus:bg-white transition-colors">
                             </div>
                             
                             <div class="relative group">
-                                <input type="file" id="slipInput" accept="image/*" class="hidden" onchange="window.updateFileName(this)">
-                                <label for="slipInput" class="flex items-center justify-center gap-2 w-full px-4 py-2 bg-slate-100 text-slate-500 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200 text-sm transition-all group-hover:border-blue-300 group-hover:text-blue-600">
+                                <input type="file" id="slipInput" accept="image/*" class="hidden" multiple onchange="window.updateFileName(this)">
+                                <label for="slipInput" class="flex items-center justify-center gap-2 w-full px-2 md:px-4 py-2 bg-slate-100 text-slate-500 rounded-xl cursor-pointer hover:bg-slate-200 border border-slate-200 text-xs md:text-sm transition-all group-hover:border-blue-300 group-hover:text-blue-600">
                                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                    <span id="slipFileName">อัพโหลดสลิปจ่ายเงิน</span>
+                                    <span id="slipFileName" class="truncate">อัพโหลดสลิปจ่ายเงิน</span>
                                 </label>
                             </div>
                         </div>
 
-                        <div class="px-4 py-2.5 bg-slate-50 rounded-xl flex justify-between items-center border-2 border-dashed border-blue-100">
-                            <span class="text-[11px] font-bold text-slate-400 uppercase">ยอดรวม:</span>
-                            <span id="totalPriceDisplay" class="text-xl font-black text-blue-700">฿0</span>
+                        <div class="px-3 md:px-4 py-2 md:py-2.5 bg-slate-50 rounded-xl flex justify-between items-center border-2 border-dashed border-blue-100">
+                            <span class="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase">ยอดรวม:</span>
+                            <span id="totalPriceDisplay" class="text-lg md:text-xl font-black text-blue-700">฿0</span>
                         </div>
 
-                        <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
+                        <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 md:py-2.5 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2 text-sm md:text-base">
                             <span>ยืนยันการจอง</span>
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Right: Content -->
-            <div id="rightColumn" class="lg:col-span-12 space-y-6 w-full">
+            <!-- Right: Content (Starts full width when Guest) -->
+            <div id="rightColumn" class="lg:col-span-12 space-y-4 md:space-y-6 w-full">
                 
                 <!-- 1. Booking List (ON TOP) -->
                 <div class="glass-panel border border-slate-200 overflow-hidden no-print w-full">
-                    <div class="p-4 bg-white border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <h3 class="font-bold text-slate-800">รายการจองรายสัปดาห์</h3>
-                        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-lg w-full md:w-auto">
-                            <button onclick="window.navigateWeek(-1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ก่อนหน้า">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <div class="p-3 md:p-4 bg-white border-b flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4">
+                        <h3 class="font-bold text-slate-800 text-sm md:text-base">รายการจองรายสัปดาห์</h3>
+                        <div class="flex items-center gap-1 md:gap-2 bg-slate-100 p-1 rounded-lg w-full md:w-auto">
+                            <button onclick="window.navigateWeek(-1)" class="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ก่อนหน้า">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </button>
-                            <div id="weekDisplay" class="text-lg font-bold text-slate-700 flex-1 md:min-w-[16rem] text-center select-none cursor-default">กำลังโหลด...</div>
-                            <button onclick="window.navigateWeek(1)" class="p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ถัดไป">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                            <div id="weekDisplay" class="text-sm md:text-lg font-bold text-slate-700 flex-1 min-w-[12rem] md:min-w-[16rem] text-center select-none cursor-default">กำลังโหลด...</div>
+                            <button onclick="window.navigateWeek(1)" class="p-1.5 md:p-2 hover:bg-white rounded-lg transition-colors" title="สัปดาห์ถัดไป">
+                                <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                             </button>
-                            <button onclick="window.goToCurrentWeek()" class="px-4 py-2 bg-white text-blue-600 rounded-lg text-sm font-black uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">สัปดาห์นี้</button>
+                            <button id="btnCurrentWeek" onclick="window.goToCurrentWeek()" class="hidden px-2 py-1 md:px-4 md:py-2 bg-white text-blue-600 rounded-lg text-[10px] md:text-sm font-black uppercase hover:bg-blue-600 hover:text-white transition-all shadow-sm">สัปดาห์นี้</button>
                         </div>
                     </div>
+                    <!-- Compressed Table Width on Mobile -->
                     <div class="table-scroll overflow-x-auto w-full">
-                        <table class="w-full text-left text-sm border-collapse whitespace-nowrap md:whitespace-normal">
-                            <thead class="bg-slate-200 sticky top-0 text-xs md:text-sm uppercase font-black text-slate-900 z-20 shadow-sm border-b border-slate-300">
+                        <table class="w-full text-left border-collapse whitespace-nowrap md:whitespace-normal">
+                            <thead class="bg-slate-200 sticky top-0 text-[10px] md:text-sm uppercase font-black text-slate-900 z-20 shadow-sm border-b border-slate-300">
                                 <tr>
-                                    <th class="px-4 py-3 text-center w-16">ลำดับ</th>
-                                    <th class="px-4 py-3">เลขที่ / สถานะ</th>
-                                    <th class="px-4 py-3">ผู้จอง / บ้านเลขที่</th>
-                                    <th class="px-4 py-3">วัน-เวลา / สนาม</th>
-                                    <th class="px-4 py-3 text-right">ยอดรวม</th>
-                                    <th id="thActions" class="px-4 py-3 text-center hidden">จัดการ</th>
+                                    <th class="p-1 md:px-4 md:py-3 text-center w-8 md:w-16">ลำดับ</th>
+                                    <th class="p-1 md:px-4 md:py-3">เลขที่ / สถานะ</th>
+                                    <th class="p-1 md:px-4 md:py-3">ผู้จอง / บ้าน</th>
+                                    <th class="p-1 md:px-4 md:py-3">วัน-เวลา / สนาม</th>
+                                    <th class="p-1 md:px-4 md:py-3 text-right">ยอดรวม</th>
+                                    <th id="thActions" class="p-1 md:px-4 md:py-3 text-center hidden">จัดการ</th>
                                 </tr>
                             </thead>
                             <tbody id="bookingTableBody"></tbody>
@@ -275,30 +267,30 @@
                 </div>
 
                 <!-- 2. Visual Schedule (ON BOTTOM) -->
-                <div class="glass-panel p-5 border border-slate-200 w-full overflow-hidden">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                        <div class="flex items-center gap-3 w-full md:w-auto justify-between">
-                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
+                <div class="glass-panel p-3 md:p-5 border border-slate-200 w-full overflow-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 md:gap-4 mb-4">
+                        <div class="flex items-center gap-2 md:gap-3 w-full md:w-auto justify-between">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-1 md:gap-2 text-sm md:text-base">
+                                <svg class="w-4 h-4 md:w-5 md:h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
                                 ตารางสนาม
                             </h3>
-                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
+                            <input type="text" id="scheduleDateInput" class="bg-slate-50 border border-slate-200 rounded-lg px-2 md:px-4 py-1.5 md:py-2 text-sm md:text-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-blue-500 w-36 md:w-48 text-center shadow-sm cursor-pointer" placeholder="เลือกวันที่">
                         </div>
-                        <div class="flex gap-4 text-[10px] font-bold uppercase tracking-wider flex-wrap">
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-400"></span> ว่าง</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-orange-400"></span> จองแต่ค้างชำระ</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500"></span> จ่ายแล้ว</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded" style="background-color: #FFFBEB; border: 1px solid #FCD34D;"></span> สำเร็จ/เล่นแล้ว</span>
-                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-slate-200"></span> ผ่าน/ไม่มีเล่น</span>
+                        <div class="flex gap-2 md:gap-4 text-[9px] md:text-[10px] font-bold uppercase tracking-wider flex-wrap">
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 md:w-3 md:h-3 rounded bg-emerald-400"></span> ว่าง</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 md:w-3 md:h-3 rounded bg-orange-400"></span> จองแต่ค้างชำระ</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 md:w-3 md:h-3 rounded bg-blue-500"></span> จ่ายแล้ว</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 md:w-3 md:h-3 rounded" style="background-color: #FFFBEB; border: 1px solid #FCD34D;"></span> เล่นแล้ว</span>
+                            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 md:w-3 md:h-3 rounded bg-slate-200"></span> หมดเวลา</span>
                         </div>
                     </div>
                     <div class="w-full overflow-x-auto">
-                        <table class="w-full text-center border-collapse table-fixed min-w-[500px]">
+                        <table class="w-full text-center border-collapse table-fixed min-w-[300px] md:min-w-[500px]">
                             <thead>
-                                <tr class="bg-slate-50 text-[11px] font-black text-slate-400 uppercase">
-                                    <th class="p-2 border-b w-20">เวลา</th>
-                                    <th class="p-2 border-b w-1/2">สนาม 1</th>
-                                    <th class="p-2 border-b w-1/2">สนาม 2</th>
+                                <tr class="bg-slate-50 text-[10px] md:text-[11px] font-black text-slate-400 uppercase">
+                                    <th class="p-1 md:p-2 border-b w-12 md:w-20">เวลา</th>
+                                    <th class="p-1 md:p-2 border-b w-1/2">สนาม 1</th>
+                                    <th class="p-1 md:p-2 border-b w-1/2">สนาม 2</th>
                                 </tr>
                             </thead>
                             <tbody id="scheduleGridBody"></tbody>
@@ -310,8 +302,9 @@
         </div>
     </div>
 
-    <!-- Modals Configuration (Export, Confirm, Prompt, Maintenance, Edit, Receipt, Report, Backup, Slip Preview) -->
-    <!-- (All modals remains exactly the same as original) -->
+    <!-- Modals... -->
+    
+    <!-- Export Excel Modal -->
     <div id="exportExcelModal" class="fixed inset-0 bg-slate-900/90 z-[100] hidden flex-col items-center justify-center p-4">
         <div class="bg-white rounded-3xl max-w-sm w-full p-6 relative shadow-2xl">
             <button onclick="window.closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-red-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
@@ -383,20 +376,20 @@
 
     <!-- Auto Maintenance Modal -->
     <div id="autoMaintenanceModal" class="fixed inset-0 bg-slate-900/100 z-[120] hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center mx-2 border-t-4 border-purple-500">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl text-center mx-2 border-t-4 border-purple-500">
             <div class="w-16 h-16 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
             </div>
-            <h3 id="maintenanceTitle" class="text-xl font-bold text-slate-800 mb-2">ถึงรอบการสำรองข้อมูลรายไตรมาส</h3>
-            <p class="text-slate-500 text-sm mb-4">เพื่อป้องกันโควต้าฐานข้อมูลเต็ม ระบบจะทำการดาวน์โหลด Excel, JSON และลบข้อมูลเก่าจำนวน <strong id="maintenanceCount" class="text-purple-600 font-black text-lg"></strong> ออกให้อัตโนมัติ</p>
-            <div class="bg-slate-50 p-4 rounded-xl text-left text-sm text-slate-600 mb-6 space-y-3 border border-slate-100">
-                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 1. บันทึกประวัติลงไฟล์ Excel</p>
-                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 2. สำรองข้อมูลรูปสลิปลงไฟล์ JSON</p>
-                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-red-600 font-bold">3. ลบข้อมูลเก่าออกจากออนไลน์!</span></p>
+            <h3 id="maintenanceTitle" class="text-lg md:text-xl font-bold text-slate-800 mb-2">ถึงรอบการสำรองข้อมูลรายไตรมาส</h3>
+            <p class="text-slate-500 text-xs md:text-sm mb-4">เพื่อป้องกันโควต้าฐานข้อมูลเต็ม ระบบจะทำการดาวน์โหลด Excel, JSON และลบข้อมูลเก่าจำนวน <strong id="maintenanceCount" class="text-purple-600 font-black text-lg"></strong> ออกให้อัตโนมัติ</p>
+            <div class="bg-slate-50 p-3 md:p-4 rounded-xl text-left text-xs md:text-sm text-slate-600 mb-6 space-y-3 border border-slate-100">
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 1. บันทึกประวัติลงไฟล์ Excel</p>
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 2. สำรองข้อมูลรูปลงไฟล์ JSON</p>
+                <p class="font-bold flex items-center gap-2"><svg class="w-5 h-5 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> <span class="text-red-600 font-bold">3. ลบข้อมูลเก่าออกจากออนไลน์!</span></p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="window.closeMaintenanceModal()" class="flex-1 px-4 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ข้ามไปก่อน</button>
-                <button id="btnStartMaintenance" onclick="window.executeAutoMaintenance()" class="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg">เริ่มดำเนินการ</button>
+            <div class="flex gap-2 md:gap-3 flex-col sm:flex-row">
+                <button onclick="window.closeMaintenanceModal()" class="flex-1 px-4 py-2.5 md:py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors text-sm md:text-base">ข้ามไปก่อน</button>
+                <button id="btnStartMaintenance" onclick="window.executeAutoMaintenance()" class="flex-1 px-4 py-2.5 md:py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg text-sm md:text-base">เริ่มดำเนินการ</button>
             </div>
         </div>
     </div>
@@ -464,168 +457,58 @@
     
     <!-- Backup Modal -->
     <div id="backupModal" class="fixed inset-0 bg-slate-900/90 z-[60] hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-white rounded-2xl max-w-md w-full p-8 relative shadow-2xl mx-2 text-center">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl mx-2 text-center">
             <button onclick="window.closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+            <div class="text-center mb-6 md:mb-8">
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <svg class="w-6 h-6 md:w-8 md:h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                 </div>
-                <h3 class="text-xl font-black text-slate-800">จัดการฐานข้อมูล</h3>
-                <p class="text-sm text-slate-500 mt-1">Backup / Restore Database</p>
+                <h3 class="text-lg md:text-xl font-black text-slate-800">จัดการฐานข้อมูล</h3>
+                <p class="text-xs md:text-sm text-slate-500 mt-1">Backup / Restore Database</p>
             </div>
             
-            <div class="space-y-4">
-                <button onclick="window.backupData()" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    <span>ดาวน์โหลดไฟล์ JSON (สำหรับย้ายเครื่อง)</span>
+            <div class="space-y-3 md:space-y-4">
+                <button onclick="window.backupData()" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 py-3 md:py-4 rounded-xl font-bold flex flex-col items-center gap-1 md:gap-2 transition-all">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="text-sm md:text-base">ดาวน์โหลดไฟล์ JSON (ย้ายเครื่อง)</span>
                 </button>
                 
-                <button onclick="window.triggerRestore()" class="w-full bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-600 border-2 border-transparent hover:border-amber-300 py-4 rounded-xl font-bold flex flex-col items-center gap-2 transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <span>นำเข้าข้อมูล (Import / Merge JSON)</span>
+                <button onclick="window.triggerRestore()" class="w-full bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-600 border-2 border-transparent hover:border-amber-300 py-3 md:py-4 rounded-xl font-bold flex flex-col items-center gap-1 md:gap-2 transition-all">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span class="text-sm md:text-base">นำเข้าข้อมูล (Import / Merge JSON)</span>
                 </button>
             </div>
             
-            <p class="text-xs text-slate-400 text-center mt-6">* ไฟล์ข้อมูลจะถูกบันทึกเป็นนามสกุล .json</p>
+            <p class="text-[10px] md:text-xs text-slate-400 text-center mt-4 md:mt-6">* ไฟล์ข้อมูลจะถูกบันทึกเป็นนามสกุล .json</p>
         </div>
     </div>
 
     <!-- Slip Preview Modal -->
     <div id="slipModal" class="fixed inset-0 bg-black/95 z-[60] hidden flex-col items-center justify-center p-4 overflow-y-auto" onclick="if(event.target === this) window.closeModal()">
         <div class="max-w-2xl w-full flex flex-col items-center gap-4 mx-2">
-            <div class="relative w-full flex justify-center bg-black rounded-2xl overflow-hidden ring-1 ring-white/10">
-                <img id="slipPreview" src="" class="max-h-[70vh] w-auto object-contain shadow-2xl">
+            <div class="relative w-full flex justify-center bg-black rounded-2xl overflow-hidden ring-1 ring-white/10 group">
+                <img id="slipPreview" src="" class="max-h-[60vh] md:max-h-[70vh] w-auto object-contain shadow-2xl transition-opacity duration-300">
+                
+                <!-- Navigation UI for Multiple Slips -->
+                <button id="btnPrevSlip" onclick="window.prevSlip()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 backdrop-blur-sm transition-all hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="btnNextSlip" onclick="window.nextSlip()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white rounded-full p-2 backdrop-blur-sm transition-all hidden">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+                <div id="slipCounter" class="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-md hidden">
+                    1 / 1
+                </div>
             </div>
-            <div class="no-print flex flex-wrap justify-center gap-3 w-full p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl relative z-10">
-                <button onclick="window.closeModal()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ปิดภาพ</button>
-                <button id="btnChangeSlipModal" onclick="window.changeSlipInModal()" class="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">เปลี่ยนรูปใหม่</button>
-                <button id="btnRemoveSlipModal" onclick="window.removeSlipInModal()" class="px-6 py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">ลบสลิป (ค้างชำระ)</button>
-                <button type="button" onclick="window.print()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer">พิมพ์ภาพ / PDF</button>
+            <div class="no-print flex flex-wrap justify-center gap-2 sm:gap-3 w-full p-3 sm:p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl relative z-10">
+                <button onclick="window.closeModal()" class="px-4 sm:px-6 py-2 sm:py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer text-sm md:text-base">ปิดหน้าต่าง</button>
+                <button id="btnChangeSlipModal" onclick="window.addMoreSlipInModal()" class="px-4 sm:px-6 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer text-sm md:text-base">+ เพิ่มสลิปใหม่</button>
+                <button id="btnRemoveSlipModal" onclick="window.removeCurrentSlipInModal()" class="px-4 sm:px-6 py-2 sm:py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer text-sm md:text-base">ลบรูปนี้</button>
+                <button type="button" onclick="window.print()" class="px-4 sm:px-6 py-2 sm:py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95 cursor-pointer text-sm md:text-base">พิมพ์ภาพ / PDF</button>
             </div>
         </div>
     </div>
-
-    <!-- ========================================== -->
-    <!-- PWA Setup Script (Dynamic Single File PWA) -->
-    <!-- ========================================== -->
-    <script>
-        (function initPWA() {
-            // 1. Create Web Manifest Dynamically (ใช้วิธี Data URI ให้สมบูรณ์แบบที่สุด)
-            const manifestData = {
-                "name": "Makmai Tennis Club",
-                "short_name": "Makmai Tennis",
-                "description": "ระบบจองคอร์ตเทนนิสหมู่บ้านแมกไม้",
-                "start_url": "./",
-                "display": "standalone",
-                "background_color": "#f8fafc",
-                "theme_color": "#1e293b",
-                "icons": [
-                    {
-                        "src": "https://cdn-icons-png.flaticon.com/512/8892/8892212.png",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "https://cdn-icons-png.flaticon.com/512/8892/8892212.png",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    }
-                ]
-            };
-            
-            const manifestString = JSON.stringify(manifestData);
-            const manifestUrl = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(manifestString);
-            const manifestLink = document.createElement('link');
-            manifestLink.rel = 'manifest';
-            manifestLink.href = manifestUrl;
-            document.head.appendChild(manifestLink);
-
-            // 2. Create Service Worker Dynamically
-            const swCode = `
-                const CACHE_NAME = 'makmai-tennis-pwa-v2';
-                
-                self.addEventListener('install', event => {
-                    self.skipWaiting();
-                });
-
-                self.addEventListener('fetch', event => {
-                    // Network First
-                    if (event.request.method !== 'GET') return;
-                    event.respondWith(
-                        fetch(event.request).catch(() => caches.match(event.request))
-                    );
-                });
-            `;
-            
-            const swBlob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(swBlob);
-
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register(swUrl)
-                        .then(reg => console.log('ServiceWorker registered.'))
-                        .catch(err => console.log('SW registration failed: ', err));
-                });
-            }
-
-            // 3. Handle Install Prompt & iOS Fallback
-            const installBtn = document.getElementById('installPwaBtn');
-            
-            // เช็คว่าเป็น iOS หรือไม่
-            const isIos = () => {
-                const userAgent = window.navigator.userAgent.toLowerCase();
-                return /iphone|ipad|ipod/.test(userAgent);
-            };
-            // เช็คว่าเปิดใช้งานผ่านแอพหรือยัง
-            const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
-
-            // สำหรับ Android, Chrome Desktop (เหตุการณ์ปกติ)
-            let deferredPrompt;
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // ป้องกัน Popup อัตโนมัติ
-                e.preventDefault();
-                deferredPrompt = e;
-                
-                if(installBtn) {
-                    installBtn.classList.remove('hidden');
-                    installBtn.classList.add('flex');
-                    
-                    installBtn.onclick = async () => {
-                        deferredPrompt.prompt();
-                        const { outcome } = await deferredPrompt.userChoice;
-                        if (outcome === 'accepted') {
-                            installBtn.style.display = 'none';
-                        }
-                        deferredPrompt = null;
-                    };
-                }
-            });
-
-            // Fallback: สำหรับ iOS (Safari) จะไม่มี Event beforeinstallprompt เราเลยบังคับให้แสดงปุ่มแทน
-            if (isIos() && !isInStandaloneMode()) {
-                if(installBtn) {
-                    installBtn.classList.remove('hidden');
-                    installBtn.classList.add('flex');
-                    
-                    installBtn.onclick = () => {
-                        // ใช้ Alert ของระบบ หรือ Alert ธรรมดาก็ได้
-                        if(window.showAlert) {
-                            window.showAlert("สำหรับ iOS: กดปุ่ม 'แชร์' ด้านล่าง แล้วเลือก 'เพิ่มไปยังหน้าจอโฮม' (Add to Home Screen)");
-                        } else {
-                            alert("สำหรับ iOS: กดปุ่ม 'แชร์' [ไอคอนสี่เหลี่ยมมีลูกศรชี้ขึ้น] ด้านล่าง แล้วเลือก 'เพิ่มไปยังหน้าจอโฮม' (Add to Home Screen)");
-                        }
-                    };
-                }
-            }
-
-            window.addEventListener('appinstalled', () => {
-                if(installBtn) installBtn.style.display = 'none';
-            });
-        })();
-    </script>
-    <!-- ========================================== -->
-
 
     <!-- FIREBASE MODULE SCRIPT (ONLINE VERSION) -->
     <script type="module">
@@ -654,6 +537,8 @@
         window.currentUploadId = null;
         window.currentViewingSlipId = null;
         window.itemToDeleteId = null;
+        window.currentSlipArray = [];
+        window.currentSlipIndex = 0;
         window.myRevChart = null; 
         window.myUsgChart = null; 
         window.pendingMaintenance = null;
@@ -1239,6 +1124,17 @@
             return `${b.date} ${b.time.split(':')[0].padStart(2, '0')}:00` <= nowStr;
         };
 
+        // Helper function for multiple slips
+        window.getSlips = function(b) {
+            if (!b) return [];
+            if (b.slips && Array.isArray(b.slips)) return b.slips;
+            if (b.slip) return [b.slip];
+            return [];
+        };
+        window.hasSlip = function(b) {
+            return window.getSlips(b).length > 0;
+        };
+
         // --- FORM HELPERS ---
         window.updateHourOptions = function() {
             const el = document.getElementById('timeSelect'); if(!el.value) return;
@@ -1279,9 +1175,10 @@
 
         window.updateFileName = (input) => {
             const span = document.getElementById('slipFileName');
-            span.innerText = input.files[0] ? input.files[0].name : 'อัพโหลดสลิปจ่ายเงิน';
-            if(input.files[0]) span.classList.add('text-blue-600', 'font-bold');
-            else {
+            if (input.files && input.files.length > 0) {
+                span.innerText = `อัพโหลดแล้ว (${input.files.length} ไฟล์)`;
+                span.classList.add('text-blue-600', 'font-bold');
+            } else {
                 if (window.isPastBookingMode) span.innerHTML = "อัพโหลดสลิปจ่ายเงิน <span class='text-red-500'>*(บังคับ)</span>";
                 else { span.classList.remove('text-blue-600', 'font-bold'); span.innerText = 'อัพโหลดสลิปจ่ายเงิน'; }
             }
@@ -1321,11 +1218,10 @@
             }
         };
 
-        // --- AUTH & ADMIN MODES (ONLINE LOGIC) ---
+        // --- AUTH & ADMIN MODES ---
         window.toggleLogin = async function() {
             if (window.isLoggedIn) { 
-                window.isLoggedIn = false; 
-                window.adminMode = false; 
+                window.isLoggedIn = window.adminMode = false; 
                 localStorage.removeItem('makmai_session');
                 localStorage.removeItem('makmai_admin');
                 window.updateLoginUI(); 
@@ -1345,44 +1241,29 @@
 
         window.updateLoginUI = function() {
             const b = document.getElementById('loginBtn'), lc = document.getElementById('leftColumn'), rc = document.getElementById('rightColumn'), ab = document.getElementById('mainActionButtons'), ta = document.getElementById('thActions'), fp = document.getElementById('scheduleDateInput')?._flatpickr;
+            const logo = document.getElementById('logoContainer');
+            const btnCurrentWeek = document.getElementById('btnCurrentWeek');
+            
             const today = window.getThailandDate(), curWS = window.getStartOfWeek(window.getWeekString(today)), nextWE = new Date(curWS); nextWE.setDate(nextWE.getDate() + 13);
             const minS = `${curWS.getFullYear()}-${String(curWS.getMonth()+1).padStart(2,'0')}-${String(curWS.getDate()).padStart(2,'0')}`;
             const maxS = `${nextWE.getFullYear()}-${String(nextWE.getMonth()+1).padStart(2,'0')}-${String(nextWE.getDate()).padStart(2,'0')}`;
-            
-            const ad = document.getElementById('adminBtn'); 
 
             if (window.isLoggedIn) {
                 b.innerHTML = '🚪 ออกจากระบบ'; b.classList.replace('bg-slate-800', 'bg-red-600'); b.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
                 lc.classList.remove('hidden'); rc.classList.replace('lg:col-span-12', 'lg:col-span-8'); ab.classList.remove('hidden'); if(ta) ta.classList.remove('hidden');
                 
-                if (window.adminMode) {
-                    if (ad) {
-                        ad.className = 'px-4 py-2 bg-red-600 text-white border border-red-700 rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 ml-2 shadow-lg shadow-red-200';
-                        ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg> 🔓 ปลดล็อกแล้ว (เปิด)';
-                    }
-                    
-                    if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
-                    window.checkAutoMaintenance(); 
-                } else {
-                    if (ad) {
-                        ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
-                        ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
-                    }
-                    
-                    if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
-                }
+                if (logo) logo.classList.remove('hidden');
+                if (btnCurrentWeek) btnCurrentWeek.classList.remove('hidden');
+                
+                if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
             } else {
                 b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.classList.replace('bg-red-600', 'bg-slate-800'); b.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
                 lc.classList.add('hidden'); rc.classList.replace('lg:col-span-8', 'lg:col-span-12'); ab.classList.add('hidden'); if(ta) ta.classList.add('hidden');
                 
-                window.adminMode = false;
-                localStorage.removeItem('makmai_admin');
+                if (logo) logo.classList.add('hidden');
+                if (btnCurrentWeek) btnCurrentWeek.classList.add('hidden');
                 
-                if (ad) {
-                    ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2';
-                    ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
-                }
-
+                const ad = document.getElementById('adminBtn'); ad.classList.replace('bg-red-600', 'bg-red-50'); ad.classList.replace('text-white', 'text-red-600'); ad.innerHTML = '🔒 ปลดล็อกผู้ดูแล';
                 if (fp) { fp.set('minDate', minS); fp.set('maxDate', maxS); }
                 const curW = window.getWeekString(today), nextW = window.getWeekString(maxS);
                 if (window.currentFilterWeek < curW || window.currentFilterWeek > nextW) window.goToCurrentWeek();
@@ -1392,22 +1273,20 @@
 
         window.toggleAdminMode = async function() {
             if (!window.isLoggedIn) return window.showAlert("กรุณาเข้าสู่ระบบก่อน");
-            
             if (!window.adminMode) {
                 const p = await window.customPrompt("รหัสผู้ดูแล:");
                 if (p === "Mtennis") {
                     window.adminMode = true;
                     localStorage.setItem('makmai_admin', 'true');
-                    window.showAlert("✅ ปลดล็อกโหมดผู้ดูแล: สามารถแก้ไขเวลาการจองได้ทุกกรณี");
-                    window.updateLoginUI();
-                } else if (p !== null) {
-                    window.showAlert("❌ รหัสไม่ถูกต้อง");
-                }
+                    const btn = document.getElementById('adminBtn'); btn.classList.replace('bg-red-50', 'bg-red-600'); btn.classList.replace('text-red-600', 'text-white'); btn.innerHTML = '🔓 ปลดล็อกแล้ว (เปิด)';
+                    const fp = document.getElementById('scheduleDateInput')?._flatpickr; if (fp) { fp.set('minDate', null); fp.set('maxDate', null); }
+                    window.showAlert("ปลดล็อกโหมดแอดมิน"); window.renderAll();
+                } else if (p !== null) window.showAlert("❌ รหัสไม่ถูกต้อง");
             } else { 
                 window.adminMode = false; 
                 localStorage.removeItem('makmai_admin');
-                window.showAlert("🔒 ปิดโหมดผู้ดูแลแล้ว"); 
                 window.updateLoginUI(); 
+                window.showAlert("ปิดโหมดแอดมิน"); 
             }
         };
 
@@ -1438,14 +1317,14 @@
             const filtered = window.allBookingsCache.filter(b => b.date === date);
             for(let h=6; h<=20; h++) {
                 const tr = document.createElement('tr'); const isP = (date < today) || (date === today && h < nowH);
-                tr.innerHTML = `<td class="p-1 md:p-3 border-b font-mono text-xs md:text-sm text-slate-500 font-bold text-center w-12 md:w-20 align-middle">${h}:00</td>`;
+                tr.innerHTML = `<td class="p-1 md:p-3 border-b font-mono text-[10px] md:text-sm text-slate-500 font-bold text-center w-12 md:w-20 align-middle">${h}:00</td>`;
                 ["สนาม 1", "สนาม 2"].forEach(court => {
                     const b = filtered.find(x => h >= parseInt((x.time||"0").split(':')[0],10) && h < parseInt((x.time||"0").split(':')[0],10) + Number(x.hours||1) && x.court === court);
                     const td = document.createElement('td'); td.className = "p-1 md:p-2 border border-slate-100 w-[40%] md:w-auto";
                     let exc = (b && String(b.id) === String(window.highlightedBookingId)) ? 'ring-2 ring-offset-1 ring-amber-400 shadow-md scale-105 z-10 relative' : '';
                     if(b) {
                         const fin = (date < today) || (date === today && nowH >= (parseInt(b.time.split(':')[0],10) + Number(b.hours)));
-                        const cls = b.slip ? (fin ? 'slot-played' : 'slot-paid') : 'slot-booked';
+                        const cls = window.hasSlip(b) ? (fin ? 'slot-played' : 'slot-paid') : 'slot-booked';
                         td.innerHTML = `<div class="rounded py-1 md:py-2 text-[10px] md:text-xs font-bold ${cls} ${exc} flex flex-col justify-center items-center leading-tight min-w-0 w-full overflow-hidden"><span class="truncate w-full text-center px-1">${b.customerName}</span><span class="text-[8px] md:text-[10px] font-medium opacity-90 mt-0.5">125/${b.address}</span></div>`;
                     } else if(isP) td.innerHTML = `<div class="rounded py-1 md:py-2 text-[10px] md:text-sm slot-past">✕</div>`;
                     else { td.innerHTML = `<div ${window.isLoggedIn ? `onclick="window.selectSlot('${date}', '${h}:00', '${court}')"` : ''} class="rounded py-1 md:py-2 text-[10px] md:text-sm slot-free ${window.isLoggedIn ? 'cursor-pointer hover:bg-emerald-200' : ''}">ว่าง</div>`; }
@@ -1485,24 +1364,25 @@
             const tbody = document.getElementById('bookingTableBody'), th = document.getElementById('thActions'); tbody.innerHTML = '';
             if (th) { if (window.isLoggedIn) th.classList.remove('hidden'); else th.classList.add('hidden'); }
             let list = window.allBookingsCache.filter(b => b.week === window.currentFilterWeek);
-            if (!list.length) { tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">ไม่พบรายการจอง</td></tr>`; return; }
+            if (!list.length) { tbody.innerHTML = `<tr><td colspan="${window.isLoggedIn?6:5}" class="p-8 text-center text-slate-400 font-bold">ไม่พบรายการจอง</td></tr>`; return; }
             const groups = list.reduce((g, b) => { if (!g[b.date]) g[b.date] = []; g[b.date].push(b); return g; }, {});
             const sortedDates = Object.keys(groups).sort(); let seq = 1;
             sortedDates.forEach(d => {
                 const bks = groups[d].sort((a,b)=>a.time.localeCompare(b.time));
                 if (tbody.children.length > 0) tbody.insertAdjacentHTML('beforeend', `<tr><td colspan="${window.isLoggedIn?6:5}" class="h-4 border-none bg-transparent"></td></tr>`);
                 bks.forEach((b, idx) => {
-                    if (b.slip) window.slipCache[b.id] = b.slip;
                     const tr = document.createElement('tr'), isP = window.isBookingPast(b);
+                    const paid = window.hasSlip(b);
                     tr.className = `transition-colors relative ${isP ? 'bg-slate-100/60 opacity-80 border-slate-200' : 'bg-white cursor-pointer hover:bg-slate-50 border-emerald-500'} border-l-4 border-r-4 ${idx===0?'border-t-4':''} ${idx===bks.length-1?'border-b-4':'border-b border-slate-100'}`;
                     
                     tr.onclick = (e) => {
+                        // ป้องกันการทำงานซ้ำซ้อนถ้าคลิกที่ปุ่มปากกา
                         if (e.target.closest('.edit-trigger') && window.isLoggedIn) { window.openEditBookingModal(b.id); return; }
 
                         if (!window.isLoggedIn) {
                             const td = e.target.closest('td');
                             const cellIndex = td ? td.cellIndex : -1;
-                            if (cellIndex >= 0 && cellIndex <= 3) window.syncScheduleToBooking(b);
+                            if (cellIndex >= 0 && cellIndex <= 4) window.syncScheduleToBooking(b);
                             return;
                         }
 
@@ -1515,14 +1395,15 @@
                             return;
                         }
                         
+                        // ถ้าคลิกในระยะคอลัมน์ที่ 0 ถึง 4 (พื้นที่ทั่วไปของแถว) จะไฮไลท์และเลื่อนจอไปที่ตารางสนาม
                         const td = e.target.closest('td');
                         const cellIndex = td ? td.cellIndex : -1;
-                        if (cellIndex >= 0 && cellIndex <= 3) {
+                        if (cellIndex >= 0 && cellIndex <= 4) {
                             window.syncScheduleToBooking(b, true);
                         }
                     };
                     
-                    const badge = isP ? (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-600">สำเร็จ</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-500">หมดเวลา</span>`) : (b.slip ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-100 text-blue-700">ชำระแล้ว</span>` : `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-700">ค้างชำระ</span>`);
+                    const badge = isP ? (paid ? `<span class="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-slate-200 text-slate-600">สำเร็จ</span>` : `<span class="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-slate-200 text-slate-500">หมดเวลา</span>`) : (paid ? `<span class="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-blue-100 text-blue-700">ชำระแล้ว</span>` : `<span class="px-2 py-0.5 rounded-full text-[9px] md:text-[10px] font-black bg-orange-100 text-orange-700">ค้างชำระ</span>`);
                     
                     const dObj = window.parseLocalDate(b.date);
                     const thaiDayNames = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสฯ", "วันศุกร์", "วันเสาร์"];
@@ -1533,19 +1414,20 @@
                     const bH = parseInt((b.time||"00:00").split(':')[0], 10);
                     const bDT = new Date(b.date.split('-')[0], parseInt(b.date.split('-')[1],10)-1, b.date.split('-')[2], bH, 0, 0);
                     const diffHours = (bDT.getTime() - nowDT.getTime()) / (1000 * 60 * 60);
-                    const lockedEdit = !window.adminMode && (isP || (b.slip && diffHours < 24));
+                    const lockedEdit = !window.adminMode && (isP || (paid && diffHours < 24));
                     
                     let edH = (!window.isLoggedIn || lockedEdit) ? 
-                        `<td class="px-2 py-2 md:px-4 md:py-3 border-none cursor-pointer" title="${!window.isLoggedIn ? '' : 'ไม่สามารถแก้ไขได้ (รายการที่จ่ายแล้วต้องแก้ล่วงหน้า 24 ชม. หรือเลยเวลาเล่นแล้ว)'}"><div class="font-bold text-sm md:text-base text-slate-500">${dateDisplay} ${window.isLoggedIn ? '<span class="grayscale opacity-50 cursor-not-allowed">✏️</span>' : ''}</div><div class="font-bold text-sm md:text-base text-slate-500 mt-0.5">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>` : 
-                        `<td class="px-2 py-2 md:px-4 md:py-3 border-none group" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : 'คลิกเพื่อแก้ไขวันและเวลา'}"><div class="font-bold text-sm md:text-base ${window.adminMode?'text-red-600':'text-blue-600'} edit-trigger inline-block cursor-pointer hover:underline">${dateDisplay} ✏️</div><div class="font-bold text-sm md:text-base text-slate-900 cursor-pointer mt-0.5">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>`;
+                        `<td class="p-1 md:px-4 md:py-3 border-none cursor-pointer" title="${!window.isLoggedIn ? '' : 'ไม่สามารถแก้ไขได้ (รายการที่จ่ายแล้วต้องแก้ล่วงหน้า 24 ชม. หรือเลยเวลาเล่นแล้ว)'}"><div class="font-bold text-[10px] sm:text-sm md:text-base text-slate-500">${dateDisplay} ${window.isLoggedIn ? '<span class="grayscale opacity-50 cursor-not-allowed">✏️</span>' : ''}</div><div class="font-bold text-[10px] sm:text-sm md:text-base text-slate-500 mt-0.5">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>` : 
+                        `<td class="p-1 md:px-4 md:py-3 border-none group" title="${window.adminMode ? 'โหมดผู้ดูแลเปิดใช้งานอยู่' : 'คลิกเพื่อแก้ไขวันและเวลา'}"><div class="font-bold text-[10px] sm:text-sm md:text-base ${window.adminMode?'text-red-600':'text-blue-600'} edit-trigger inline-block cursor-pointer hover:underline">${dateDisplay} ✏️</div><div class="font-bold text-[10px] sm:text-sm md:text-base text-slate-900 cursor-pointer mt-0.5">${b.time} (${b.hours} ชม.) - ${b.court}</div></td>`;
                     
-                    let actH = `<td class="px-2 py-2 md:px-4 md:py-3 border-none ${!window.isLoggedIn?'hidden':''}"><div class="flex justify-center gap-1">` + (window.isLoggedIn ? `<button class="btn-print p-1 md:p-2 rounded-lg transition-colors ${b.slip ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!b.slip ? 'disabled' : ''} title="พิมพ์ใบเสร็จ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>` + (b.slip?`<button class="btn-view-slip p-1 md:p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg></button>`:`<button class="btn-upload-slip p-1 md:p-2 text-slate-400 hover:text-blue-600 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`) + `<button class="btn-delete p-1 md:p-2 rounded-lg transition-colors ${isP && !window.adminMode ? 'text-slate-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50'}" ${isP && !window.adminMode?'disabled':''} title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : "") + `</div></td>`;
+                    const slipCountTxt = window.getSlips(b).length > 1 ? `<span class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">${window.getSlips(b).length}</span>` : '';
+                    let actH = `<td class="p-1 md:px-4 md:py-3 border-none ${!window.isLoggedIn?'hidden':''}"><div class="flex justify-center gap-1">` + (window.isLoggedIn ? `<button class="btn-print p-1 md:p-2 rounded-lg transition-colors ${paid ? 'text-blue-600 hover:bg-blue-50' : 'text-slate-300'}" ${!paid ? 'disabled' : ''} title="พิมพ์ใบเสร็จ"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>` + (paid?`<button class="btn-view-slip relative p-1 md:p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg" title="ดูรูปสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>${slipCountTxt}</button>`:`<button class="btn-upload-slip p-1 md:p-2 text-slate-400 hover:text-blue-600 rounded-lg" ${isP && !window.adminMode?'disabled':''} title="อัพโหลดสลิป"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg></button>`) + `<button class="btn-delete p-1 md:p-2 rounded-lg transition-colors ${isP && !window.adminMode ? 'text-slate-300 cursor-not-allowed' : 'text-red-500 hover:bg-red-50'}" ${isP && !window.adminMode?'disabled':''} title="ลบรายการจอง"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : "") + `</div></td>`;
                     
-                    tr.innerHTML = `<td class="px-2 py-2 md:px-4 md:py-3 text-center font-bold text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} border-none">${seq++}</td>` +
-                                   `<td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="font-bold text-sm md:text-base font-mono mb-1 ${isP?'text-slate-500':'text-slate-900'}">${window.generateRef(b)}</div>${badge}</td>` +
-                                   `<td class="px-2 py-2 md:px-4 md:py-3 border-none"><div class="font-bold text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'}">${b.customerName}</div><div class="font-bold text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} mt-0.5">125/${b.address}</div></td>` +
+                    tr.innerHTML = `<td class="p-1 md:px-4 md:py-3 text-center font-bold text-[10px] sm:text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} border-none">${seq++}</td>` +
+                                   `<td class="p-1 md:px-4 md:py-3 border-none"><div class="font-bold text-[9px] sm:text-sm md:text-base font-mono mb-0.5 ${isP?'text-slate-500':'text-slate-900'}">${window.generateRef(b)}</div>${badge}</td>` +
+                                   `<td class="p-1 md:px-4 md:py-3 border-none"><div class="font-bold text-[10px] sm:text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'}">${b.customerName}</div><div class="font-bold text-[10px] sm:text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} mt-0.5">125/${b.address}</div></td>` +
                                    `${edH}` +
-                                   `<td class="px-2 py-2 md:px-4 md:py-3 text-right font-black text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} border-none">฿${(Number(b.totalPrice)||0).toLocaleString()}</td>` +
+                                   `<td class="p-1 md:px-4 md:py-3 text-right font-black text-[10px] sm:text-sm md:text-base ${isP?'text-slate-500':'text-slate-900'} border-none">฿${(Number(b.totalPrice)||0).toLocaleString()}</td>` +
                                    `${actH}`;
                     tbody.appendChild(tr);
                 });
@@ -1687,7 +1569,7 @@
                 }).map((b, i) => ({ 
                     'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 
                     'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 
-                    'ยอดรวม (บาท)': b.totalPrice, 'สถานะ': b.slip?'ชำระแล้ว':'ค้างชำระ' 
+                    'ยอดรวม (บาท)': b.totalPrice, 'สถานะ': window.hasSlip(b)?'ชำระแล้ว':'ค้างชำระ' 
                 }));
                 const ws = XLSX.utils.json_to_sheet(excelData);
                 const wb = XLSX.utils.book_new();
@@ -1731,18 +1613,18 @@
             }
         };
 
-        // --- EXPORT, PDF, DELETE, SLIP ---
+        // --- EXPORT, REPORT, PRINT, & BACKUP LOGIC ---
         window.executeExcelExport = () => {
             const sd = document.getElementById('exportStartDate').value, ed = document.getElementById('exportEndDate').value;
             if (!sd || !ed) return window.showAlert("กรุณาเลือกช่วงวันที่"); if (sd > ed) return window.showAlert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
-            const data = window.allBookingsCache.filter(b => b.date >= sd && b.date <= ed).sort((a,b)=>a.date!==b.date?a.date.localeCompare(b.date):a.time.localeCompare(b.time)).map((b, i) => ({ 'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 'เจ้าของแปลง': b.ownerName||'-', 'เบอร์โทร': b.phoneNumber||'-', 'ยอดรวม (บาท)': b.totalPrice, 'สถานะ': b.slip?'ชำระแล้ว':'ค้างชำระ', 'อ้างอิง': window.generateRef(b) }));
+            const data = window.allBookingsCache.filter(b => b.date >= sd && b.date <= ed).sort((a,b)=>a.date!==b.date?a.date.localeCompare(b.date):a.time.localeCompare(b.time)).map((b, i) => ({ 'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 'เจ้าของแปลง': b.ownerName||'-', 'เบอร์โทร': b.phoneNumber||'-', 'ยอดรวม (บาท)': b.totalPrice, 'สถานะ': window.hasSlip(b)?'ชำระแล้ว':'ค้างชำระ', 'อ้างอิง': window.generateRef(b) }));
             if (!data.length) return window.showAlert("ไม่พบข้อมูลในช่วงที่เลือก");
             XLSX.writeFile({SheetNames:["Bookings"], Sheets:{Bookings:XLSX.utils.json_to_sheet(data)}}, `Makmai_Tennis_Report_${sd}_to_${ed}.xlsx`);
             window.closeModal(); window.showAlert("ดาวน์โหลด Excel สำเร็จ");
         };
 
         window.openReportModal = () => {
-             const list = window.allBookingsCache, today = window.getThailandDate(), curM = today.slice(0, 7), curY = today.slice(0, 4), paidList = list.filter(b => b.slip);
+             const list = window.allBookingsCache, today = window.getThailandDate(), curM = today.slice(0, 7), curY = today.slice(0, 4), paidList = list.filter(b => window.hasSlip(b));
              const mTotal = paidList.filter(b => b.date && b.date.startsWith(curM)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
              const yTotal = paidList.filter(b => b.date && b.date.startsWith(curY)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
              const uC = new Set(paidList.map(b => b.customerName)).size;
@@ -1898,8 +1780,8 @@
                 html += `<div class="w-[49%] mb-4 break-inside-avoid border border-slate-300 rounded-lg overflow-hidden"><h3 class="text-[10px] font-bold bg-slate-100 p-1 text-center border-b border-slate-300">${window.formatThaiDate(dS)}</h3><table class="w-full text-left text-[8px] border-collapse bg-white"><thead><tr class="bg-slate-50 text-slate-500"><th class="border-b border-r p-1 text-center w-8">เวลา</th><th class="border-b border-r p-1 text-center w-1/2">สนาม 1</th><th class="border-b p-1 text-center w-1/2">สนาม 2</th></tr></thead><tbody>`;
                 for(let h=6; h<=20; h++) {
                     const b1 = bks.find(b => b.court==="สนาม 1" && h>=parseInt(b.time.split(':')[0],10) && h<parseInt(b.time.split(':')[0],10)+Number(b.hours)), b2 = bks.find(b => b.court==="สนาม 2" && h>=parseInt(b.time.split(':')[0],10) && h<parseInt(b.time.split(':')[0],10)+Number(b.hours));
-                    const fS = (b) => !b ? '<div class="text-center text-slate-300">-</div>' : `<div class="flex flex-col pl-1"><span class="font-bold text-slate-800 truncate">${b.customerName}</span><span class="text-[7px] text-slate-500">125/${b.address} <span class="${b.slip?'text-blue-600':'text-orange-600'}">${b.slip?'(จ่าย)':'(ค้าง)'}</span></span></div>`;
-                    html += `<tr class="hover:bg-slate-50"><td class="border-b border-r p-1 text-center font-mono font-bold text-slate-400">${h}:00</td><td class="border-b border-r p-0.5 ${b1?(b1.slip?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b1)}</td><td class="border-b p-0.5 ${b2?(b2.slip?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b2)}</td></tr>`;
+                    const fS = (b) => !b ? '<div class="text-center text-slate-300">-</div>' : `<div class="flex flex-col pl-1"><span class="font-bold text-slate-800 truncate">${b.customerName}</span><span class="text-[7px] text-slate-500">125/${b.address} <span class="${window.hasSlip(b)?'text-blue-600':'text-orange-600'}">${window.hasSlip(b)?'(จ่าย)':'(ค้าง)'}</span></span></div>`;
+                    html += `<tr class="hover:bg-slate-50"><td class="border-b border-r p-1 text-center font-mono font-bold text-slate-400">${h}:00</td><td class="border-b border-r p-0.5 ${b1?(window.hasSlip(b1)?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b1)}</td><td class="border-b p-0.5 ${b2?(window.hasSlip(b2)?'bg-blue-50/50':'bg-orange-50/50'):''}">${fS(b2)}</td></tr>`;
                 }
                 html += `</tbody></table></div>`;
             }
@@ -1913,13 +1795,14 @@
             const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (!b) return window.showAlert("ไม่พบข้อมูล");
             const hrs = Number(b.hours||0), startH = parseInt((b.time||"00").split(':')[0],10); let std = 0, pk = 0;
             for(let i=0; i<hrs; i++) { if (startH+i >= 18) pk++; else std++; } const total = std*100 + pk*150;
-            const rHtml = (type) => `<div class="border border-slate-800 p-4 relative bg-white" style="page-break-inside: avoid;"><div class="flex justify-between items-start mb-2"><div class="flex items-start gap-2"><img src="แมกไม้พื้นหลังดำ.jpg" class="w-10 h-10 object-contain"><div><h2 class="text-base font-black text-slate-800 leading-tight">MAKMAI TENNIS CLUB</h2><p class="text-[9px] font-bold text-slate-500">ใบเสร็จรับเงิน / Receipt</p></div></div><div class="text-right"><div class="text-[9px] font-bold text-slate-500 mb-0.5">${type==='copy'?'สำเนา':'ต้นฉบับ'}</div><div class="font-mono text-xs font-bold text-slate-700">#${window.generateRef(b)}</div><div class="text-[9px] font-medium">วันที่: ${window.formatThaiDate(window.getThailandDate())}</div></div></div><div class="border-t border-slate-800 py-1.5 my-1"><div class="mb-1.5"><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">ผู้มาใช้บริการ / Customer</h3><div class="grid grid-cols-2 gap-1 text-[11px]"><div><span class="text-slate-500">ผู้จอง:</span> <span class="font-bold">${b.customerName}</span></div><div><span class="text-slate-500">บ้านเลขที่:</span> <span class="font-bold">125/${b.address}</span></div><div><span class="text-slate-500">เจ้าของแปลง:</span> <span class="font-bold">${b.ownerName||'-'}</span></div></div></div><div><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">รายละเอียด / Booking</h3><div class="grid grid-cols-3 gap-1 text-[11px]"><div><span class="text-slate-500">สนาม:</span> <span class="font-bold">${b.court}</span></div><div><span class="text-slate-500">เริ่ม:</span> <span class="font-bold">${b.time} น.</span></div><div><span class="text-slate-500">เวลา:</span> <span class="font-bold">${b.hours} ชม.</span></div></div></div></div><div class="space-y-0.5 border-t border-slate-800 pt-1.5">${std>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 06:00-18:00 (${std} ชม.)</span><span class="font-mono font-bold">฿${std*100}</span></div>`:''}${pk>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 18:00-21:00 (${pk} ชม.)</span><span class="font-mono font-bold">฿${pk*150}</span></div>`:''}<div class="flex justify-between mt-1 pt-1 border-t border-slate-300"><span class="text-xs font-black text-slate-800">ยอดรวม / Total</span><span class="text-lg font-black text-slate-900 font-mono">฿${total}</span></div></div><div class="flex justify-end pt-8 mt-2"><div class="text-center w-28"><div class="border-b border-slate-400 mb-1 h-6"></div><span class="text-[8px] font-bold text-slate-500">ผู้รับเงิน / Recipient</span></div></div></div>`;
+            const rHtml = (type) => `<div class="border border-slate-800 p-4 relative bg-white" style="page-break-inside: avoid;"><div class="flex justify-between items-start mb-2"><div class="flex items-start gap-2"><img src="แมกไม้พื้นหลังดำ.jpg" class="w-10 h-10 object-contain" onerror="this.style.display='none'"><div><h2 class="text-base font-black text-slate-800 leading-tight">MAKMAI TENNIS CLUB</h2><p class="text-[9px] font-bold text-slate-500">ใบเสร็จรับเงิน / Receipt</p></div></div><div class="text-right"><div class="text-[9px] font-bold text-slate-500 mb-0.5">${type==='copy'?'สำเนา':'ต้นฉบับ'}</div><div class="font-mono text-xs font-bold text-slate-700">#${window.generateRef(b)}</div><div class="text-[9px] font-medium">วันที่: ${window.formatThaiDate(window.getThailandDate())}</div></div></div><div class="border-t border-slate-800 py-1.5 my-1"><div class="mb-1.5"><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">ผู้มาใช้บริการ / Customer</h3><div class="grid grid-cols-2 gap-1 text-[11px]"><div><span class="text-slate-500">ผู้จอง:</span> <span class="font-bold">${b.customerName}</span></div><div><span class="text-slate-500">บ้านเลขที่:</span> <span class="font-bold">125/${b.address}</span></div><div><span class="text-slate-500">เจ้าของแปลง:</span> <span class="font-bold">${b.ownerName||'-'}</span></div></div></div><div><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">รายละเอียด / Booking</h3><div class="grid grid-cols-3 gap-1 text-[11px]"><div><span class="text-slate-500">สนาม:</span> <span class="font-bold">${b.court}</span></div><div><span class="text-slate-500">เริ่ม:</span> <span class="font-bold">${b.time} น.</span></div><div><span class="text-slate-500">เวลา:</span> <span class="font-bold">${b.hours} ชม.</span></div></div></div></div><div class="space-y-0.5 border-t border-slate-800 pt-1.5">${std>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 06:00-18:00 (${std} ชม.)</span><span class="font-mono font-bold">฿${std*100}</span></div>`:''}${pk>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 18:00-21:00 (${pk} ชม.)</span><span class="font-mono font-bold">฿${pk*150}</span></div>`:''}<div class="flex justify-between mt-1 pt-1 border-t border-slate-300"><span class="text-xs font-black text-slate-800">ยอดรวม / Total</span><span class="text-lg font-black text-slate-900 font-mono">฿${total}</span></div></div><div class="flex justify-end pt-8 mt-2"><div class="text-center w-28"><div class="border-b border-slate-400 mb-1 h-6"></div><span class="text-[8px] font-bold text-slate-500">ผู้รับเงิน / Recipient</span></div></div></div>`;
             document.getElementById('receiptContent').innerHTML = `<div class="flex flex-col gap-0">${rHtml('copy')}<div class="w-full py-4 relative flex items-center justify-center print:py-6"><div class="absolute w-full border-b-2 border-dashed border-slate-400 top-1/2"></div><span class="relative bg-white px-2 text-[8px] text-slate-500 font-mono z-10">✂ ตัดตามรอยประ</span></div>${rHtml('original')}</div>`;
             document.title = `${b.ownerName?b.ownerName.split(' ')[0]:b.customerName}_${window.generateRef(b).replace(/\//g,'-')}`;
             document.querySelector('#receiptModal > div').className = 'bg-white max-w-xl w-full relative flex flex-col items-center p-0 md:p-4 shadow-2xl';
             document.getElementById('receiptModal').classList.add('modal-active');
         };
 
+        // --- RESTORED MISSING BOOKING FUNCTIONS ---
         window.deleteBooking = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบรายการในอดีตไม่ได้ (ต้องเปิดโหมดแอดมิน)"); window.itemToDeleteId = b?b.id:id; document.getElementById('confirmModal').classList.add('modal-active'); };
         document.getElementById('confirmDeleteBtn').onclick = async () => { if (window.itemToDeleteId === null) return; try { await deleteDoc(doc(collectionRef, String(window.itemToDeleteId))); window.showAlert("ลบรายการจองออนไลน์เรียบร้อย"); window.closeConfirmModal(); } catch (err) { window.showAlert("ลบไม่ได้: " + err.message); } };
 
@@ -1941,14 +1824,14 @@
             e.preventDefault(); const btn = document.getElementById('submitBtn'); const fd = new FormData(e.target);
             try {
                 btn.disabled = true; btn.innerHTML = '<span>กำลังบันทึก...</span>';
-                const date = fd.get('date'), time = fd.get('time'), startH = parseInt(time.split(':')[0], 10), hours = parseInt(fd.get('hours'), 10), cleanAddress = window.normalizeAddress(fd.get('address')), weekStr = window.getWeekString(date), finalOwnerName = (fd.get('ownerName1') + ' ' + fd.get('ownerName2')).trim(), todayThaiStr = window.getThailandDate(), nowH = window.getThailandHour(), file = document.getElementById('slipInput').files[0], isCurrentHour = (date === todayThaiStr && startH === nowH);
+                const date = fd.get('date'), time = fd.get('time'), startH = parseInt(time.split(':')[0], 10), hours = parseInt(fd.get('hours'), 10), cleanAddress = window.normalizeAddress(fd.get('address')), weekStr = window.getWeekString(date), finalOwnerName = (fd.get('ownerName1') + ' ' + fd.get('ownerName2')).trim(), todayThaiStr = window.getThailandDate(), nowH = window.getThailandHour(), files = document.getElementById('slipInput').files, isCurrentHour = (date === todayThaiStr && startH === nowH);
 
                 if (window.isPastBookingMode) {
                     if (date > todayThaiStr || (date === todayThaiStr && startH > nowH)) return window.showAlert("❌ โหมดบันทึกย้อนหลัง ใช้สำหรับเวลาที่ผ่านไปแล้วเท่านั้น");
-                    if (!file) return window.showAlert("⚠️ จำเป็นต้องอัพโหลดสลิปชำระเงินเพื่อยืนยัน");
+                    if (files.length === 0) return window.showAlert("⚠️ จำเป็นต้องอัพโหลดสลิปชำระเงินเพื่อยืนยัน");
                 } else {
                     if (date < todayThaiStr || (date === todayThaiStr && startH < nowH)) return window.showAlert("❌ ไม่สามารถจองเวลาย้อนหลังได้ กรุณาใช้ปุ่ม 'บันทึกย้อนหลัง'");
-                    if (isCurrentHour && !file) return window.showAlert("⚠️ การจองคอร์ตเล่นทันที จำเป็นต้องอัพโหลดสลิปด้วย");
+                    if (isCurrentHour && files.length === 0) return window.showAlert("⚠️ การจองคอร์ตเล่นทันที จำเป็นต้องอัพโหลดสลิปด้วย");
                     if (date > todayThaiStr) {
                         if (window.allBookingsCache.filter(b => window.normalizeAddress(b.address) === cleanAddress && b.date > todayThaiStr).length >= 3) return window.showAlert(`❌ บ้านเลขที่ 125/${cleanAddress} จองล่วงหน้าเต็มโควต้า 3 ครั้งแล้ว`);
                     }
@@ -1957,13 +1840,18 @@
                 const requested = Array.from({length: hours}, (_, i) => startH + i);
                 if (window.allBookingsCache.filter(b => b.date === date && b.court === fd.get('court')).some(b => requested.some(s => s >= parseInt((b.time || "00").split(':')[0], 10) && s < parseInt((b.time || "00").split(':')[0], 10) + Number(b.hours || 1)))) return window.showAlert("❌ ช่วงเวลานี้ถูกจองแล้ว!");
 
-                const slip = file ? await compressImage(file) : null;
+                let slipsArray = [];
+                for(let i = 0; i < files.length; i++) {
+                    slipsArray.push(await compressImage(files[i]));
+                }
+
                 let implicitLightHours = 0, totalPrice = 0;
                 for(let i = 0; i < hours; i++) { if (startH + i >= 18) { totalPrice += 150; implicitLightHours++; } else totalPrice += 100; }
                 const newId = Date.now().toString() + Math.random().toString(36).substr(2, 4);
 
                 if (!collectionRef) return window.showAlert("❌ ฐานข้อมูลยังไม่ได้เชื่อมต่อ");
-                await setDoc(doc(collectionRef, newId), { id: newId, date, court: fd.get('court'), time: time, hours: hours, lightHours: implicitLightHours, customerName: fd.get('customerName'), phoneNumber: fd.get('phoneNumber'), address: cleanAddress, ownerName: finalOwnerName, totalPrice: totalPrice, timestamp: Date.now(), week: weekStr, slip });
+                // Save 'slips' as Array, backward compatible 'slip' field kept empty or matched to index 0.
+                await setDoc(doc(collectionRef, newId), { id: newId, date, court: fd.get('court'), time: time, hours: hours, lightHours: implicitLightHours, customerName: fd.get('customerName'), phoneNumber: fd.get('phoneNumber'), address: cleanAddress, ownerName: finalOwnerName, totalPrice: totalPrice, timestamp: Date.now(), week: weekStr, slips: slipsArray });
                 
                 e.target.reset(); window.updateFileName({files:[]}); window.showAlert(`บันทึก${window.isPastBookingMode ? 'ย้อนหลัง' : 'การจอง'}สำเร็จออนไลน์`);
                 
@@ -1985,7 +1873,7 @@
             const bookingDateTime = new Date(b.date.split('-')[0], parseInt(b.date.split('-')[1],10)-1, b.date.split('-')[2], bStartH, 0, 0);
             const diffHours = (bookingDateTime.getTime() - nowDateTime.getTime()) / (1000 * 60 * 60);
 
-            if (b.slip && diffHours < 24 && !window.adminMode) return window.showAlert("❌ ไม่สามารถแก้ไขได้ (รายการที่ชำระเงินแล้วต้องแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมงก่อนเวลาเริ่มเล่น)");
+            if (window.hasSlip(b) && diffHours < 24 && !window.adminMode) return window.showAlert("❌ ไม่สามารถแก้ไขได้ (รายการที่ชำระเงินแล้วต้องแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมงก่อนเวลาเริ่มเล่น)");
 
             document.getElementById('editBookingId').value = b.id;
             const editDateFp = document.getElementById('editDateInput')._flatpickr; 
@@ -2035,50 +1923,178 @@
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
 
-        window.viewSlipFromId = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if(b && b.slip) { window.currentViewingSlipId = id; document.getElementById('slipPreview').src = b.slip; const isP = window.isBookingPast(b); const btnC = document.getElementById('btnChangeSlipModal'), btnR = document.getElementById('btnRemoveSlipModal'); if (isP && !window.adminMode) { btnC.style.display = 'none'; btnR.style.display = 'none'; } else { btnC.style.display = 'flex'; btnR.style.display = 'flex'; } document.getElementById('slipModal').classList.add('modal-active'); } else window.showAlert("ไม่พบรูปสลิป"); };
-        window.changeSlipInModal = async () => { 
-            const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentViewingSlipId)); 
-            if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ เปลี่ยนสลิปไม่ได้ (เลยเวลาแล้ว)"); 
-            const confirmed = await window.customConfirm("เปลี่ยนรูปสลิปใช่หรือไม่?", "ยืนยันการเปลี่ยนรูป");
-            if (confirmed) { 
-                window.currentUploadId = window.currentViewingSlipId; 
-                document.getElementById('updateSlipInput').click(); 
-            } 
+        // --- SLIP MODAL NAVIGATION & UPDATE ---
+        window.updateSlipModalView = () => {
+            const img = document.getElementById('slipPreview');
+            img.style.opacity = 0;
+            setTimeout(() => {
+                img.src = window.currentSlipArray[window.currentSlipIndex];
+                img.style.opacity = 1;
+            }, 150);
+            
+            const counter = document.getElementById('slipCounter');
+            const btnPrev = document.getElementById('btnPrevSlip');
+            const btnNext = document.getElementById('btnNextSlip');
+            
+            if (window.currentSlipArray.length > 1) {
+                counter.innerText = `${window.currentSlipIndex + 1} / ${window.currentSlipArray.length}`;
+                counter.classList.remove('hidden');
+                btnPrev.classList.toggle('hidden', window.currentSlipIndex === 0);
+                btnNext.classList.toggle('hidden', window.currentSlipIndex === window.currentSlipArray.length - 1);
+            } else {
+                counter.classList.add('hidden');
+                btnPrev.classList.add('hidden');
+                btnNext.classList.add('hidden');
+            }
         };
-        window.triggerUploadSlip = (id) => { const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ อัปโหลดสลิปไม่ได้ (เลยเวลาแล้ว)"); window.currentUploadId = id; document.getElementById('updateSlipInput').click(); };
-        window.removeSlipInModal = () => { if (!window.currentViewingSlipId) return; window.removeSlip(window.currentViewingSlipId, true); };
+
+        window.prevSlip = () => {
+            if (window.currentSlipIndex > 0) {
+                window.currentSlipIndex--;
+                window.updateSlipModalView();
+            }
+        };
+
+        window.nextSlip = () => {
+            if (window.currentSlipIndex < window.currentSlipArray.length - 1) {
+                window.currentSlipIndex++;
+                window.updateSlipModalView();
+            }
+        };
+
+        window.viewSlipFromId = (id) => { 
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); 
+            window.currentSlipArray = window.getSlips(b);
+            if(window.currentSlipArray.length > 0) { 
+                window.currentViewingSlipId = id; 
+                window.currentSlipIndex = 0;
+                window.updateSlipModalView();
+                
+                const isP = window.isBookingPast(b); 
+                const btnC = document.getElementById('btnChangeSlipModal');
+                const btnR = document.getElementById('btnRemoveSlipModal'); 
+                
+                if (isP && !window.adminMode) { 
+                    btnC.style.display = 'none'; 
+                    btnR.style.display = 'none'; 
+                } else { 
+                    btnC.style.display = 'flex'; 
+                    btnR.style.display = 'flex'; 
+                } 
+                document.getElementById('slipModal').classList.add('modal-active'); 
+            } else {
+                window.showAlert("ไม่พบรูปสลิป"); 
+            }
+        };
+
+        window.addMoreSlipInModal = async () => { 
+            const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentViewingSlipId)); 
+            if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ เพิ่มสลิปไม่ได้ (เลยเวลาแล้ว)"); 
+            window.currentUploadId = window.currentViewingSlipId; 
+            document.getElementById('updateSlipInput').click(); 
+        };
+
+        window.triggerUploadSlip = (id) => { 
+            const b = window.allBookingsCache.find(x => String(x.id) === String(id)); 
+            if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ อัปโหลดสลิปไม่ได้ (เลยเวลาแล้ว)"); 
+            window.currentUploadId = id; 
+            document.getElementById('updateSlipInput').click(); 
+        };
+
+        window.removeCurrentSlipInModal = () => { 
+            if (!window.currentViewingSlipId) return; 
+            window.removeSlip(window.currentViewingSlipId, true); 
+        };
+
         window.removeSlip = async (id, fromM = false) => { 
             const b = window.allBookingsCache.find(x => String(x.id) === String(id)); 
             if (b && window.isBookingPast(b) && !window.adminMode) return window.showAlert("❌ ลบสลิปไม่ได้ (เลยเวลาแล้ว)"); 
-            const confirmed = await window.customConfirm("⚠️ ลบสลิปและเปลี่ยนเป็น 'ค้างชำระ'?", "ยืนยันการลบสลิป", true);
+            
+            const isLast = window.currentSlipArray.length <= 1;
+            const msg = isLast ? "⚠️ ลบรูปสลิปใบสุดท้าย และเปลี่ยนสถานะเป็น 'ค้างชำระ' ใช่หรือไม่?" : "ยืนยันการลบรูปสลิปใบนี้?";
+            const confirmed = await window.customConfirm(msg, "ยืนยันการลบสลิป", true);
             if (!confirmed) return; 
+            
             try { 
-                b.slip = ""; 
+                // Remove current index
+                window.currentSlipArray.splice(window.currentSlipIndex, 1);
+                
+                b.slips = [...window.currentSlipArray];
+                if (b.slip) b.slip = ""; // Clear old legacy field just in case
+                
                 await setDoc(doc(collectionRef, String(b.id)), b); 
-                if (fromM) { window.closeModal(); document.getElementById('slipPreview').src = ''; } 
+                
+                if (fromM) { 
+                    if (window.currentSlipArray.length === 0) {
+                        window.closeModal(); 
+                        document.getElementById('slipPreview').src = ''; 
+                    } else {
+                        if (window.currentSlipIndex >= window.currentSlipArray.length) {
+                            window.currentSlipIndex = window.currentSlipArray.length - 1;
+                        }
+                        window.updateSlipModalView();
+                    }
+                } 
                 window.showAlert("ลบสลิปเรียบร้อย"); 
             } catch (e) { window.showAlert("ลบสลิปไม่สำเร็จ"); } 
         };
         
         document.getElementById('updateSlipInput').onchange = async (e) => {
-            const file = e.target.files[0]; if (!file || !window.currentUploadId) return;
+            const files = e.target.files; if (files.length === 0 || !window.currentUploadId) return;
             try {
-                const slip = await compressImage(file), b = window.allBookingsCache.find(x => String(x.id) === String(window.currentUploadId));
-                if (b) { b.slip = slip; await setDoc(doc(collectionRef, String(b.id)), b); if (document.getElementById('slipModal').classList.contains('modal-active')) document.getElementById('slipPreview').src = slip; window.showAlert("อัพโหลดสลิปเรียบร้อย"); }
+                const b = window.allBookingsCache.find(x => String(x.id) === String(window.currentUploadId));
+                if (b) { 
+                    let existingSlips = window.getSlips(b);
+                    for(let i=0; i<files.length; i++) {
+                        existingSlips.push(await compressImage(files[i]));
+                    }
+                    b.slips = existingSlips;
+                    if(b.slip) b.slip = ""; // clear legacy
+                    
+                    await setDoc(doc(collectionRef, String(b.id)), b); 
+                    
+                    if (document.getElementById('slipModal').classList.contains('modal-active')) {
+                        window.currentSlipArray = [...b.slips];
+                        window.currentSlipIndex = window.currentSlipArray.length - 1; // Go to newly added
+                        window.updateSlipModalView();
+                    }
+                    window.showAlert(`เพิ่มสลิปเรียบร้อย (${files.length} รูป)`); 
+                }
             } catch (err) { window.showAlert("อัปโหลดไม่สำเร็จ"); } finally { e.target.value = ''; window.currentUploadId = null; }
         };
 
-        async function autoDeletePastUnpaid() {
+        // --- FIREBASE LOGIC ---
+        window.initAuth = async function() {
+            try {
+                app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
+                await signInAnonymously(auth);
+                onSnapshot(collectionRef, (snap) => {
+                    window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
+                    window.autoDeletePastUnpaid();
+                    window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    window.renderAll();
+                    window.updateMaintenanceWarning();
+                    const s = document.getElementById('customerHistory'); 
+                    if(s) {
+                        s.innerHTML = '<option value="">▼ เลือกรายชื่อเดิม</option>';
+                        const unique = new Map(); window.allBookingsCache.forEach(d => { if (d.customerName && !unique.has(d.customerName)) unique.set(d.customerName, { name: d.customerName, phone: d.phoneNumber, address: d.address, owner: d.ownerName }); });
+                        unique.forEach(c => { const opt = document.createElement('option'); opt.value = JSON.stringify(c); opt.textContent = c.name; s.appendChild(opt); });
+                    }
+                });
+            } catch (e) { console.error(e); window.showAlert("เชื่อมต่อ Firebase ไม่สำเร็จ"); }
+            init(); window.updateLoginUI();
+        };
+
+        window.autoDeletePastUnpaid = async function() {
             const nowStr = `${window.getThailandDate()} ${window.getThailandHour().toString().padStart(2,'0')}:00`;
             for (const b of window.allBookingsCache) {
-                if (!b.slip) {
+                if (!window.hasSlip(b)) {
                     if (`${b.date} ${b.time.split(':')[0].padStart(2,'0')}:00` <= nowStr) {
-                        try { await deleteDoc(doc(collectionRef, String(b.id))); } catch(e) { console.error(e); }
+                        try { await deleteDoc(doc(collectionRef, String(b.id))); } catch(e) {}
                     }
                 }
             }
-        }
-        window.autoDeletePastUnpaid = autoDeletePastUnpaid;
+        };
 
         const init = function() {
             const today = window.getThailandDate(), curWS = window.getStartOfWeek(window.getWeekString(today)), nextWE = new Date(curWS); nextWE.setDate(nextWE.getDate() + 13);
@@ -2107,28 +2123,6 @@
             const nowH = window.getThailandHour(); if(nowH >= 6 && nowH <= 20) document.getElementById('timeSelect').value = String(nowH).padStart(2, '0') + ":00";
             window.currentFilterWeek = window.getWeekString(today); window.updateHourOptions(); window.goToCurrentWeek();
         };
-
-        // Initialize Firebase and Application
-        window.initAuth = async function() {
-            try {
-                app = initializeApp(config); auth = getAuth(app); db = getFirestore(app); collectionRef = collection(db, 'bookings');
-                await signInAnonymously(auth);
-                onSnapshot(collectionRef, (snap) => {
-                    window.allBookingsCache = []; snap.forEach(d => window.allBookingsCache.push(d.data()));
-                    window.autoDeletePastUnpaid();
-                    window.allBookingsCache.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                    window.renderAll();
-                    window.updateMaintenanceWarning();
-                    const s = document.getElementById('customerHistory'); 
-                    if(s) {
-                        s.innerHTML = '<option value="">▼ เลือกรายชื่อเดิม</option>';
-                        const unique = new Map(); window.allBookingsCache.forEach(d => { if (d.customerName && !unique.has(d.customerName)) unique.set(d.customerName, { name: d.customerName, phone: d.phoneNumber, address: d.address, owner: d.ownerName }); });
-                        unique.forEach(c => { const opt = document.createElement('option'); opt.value = JSON.stringify(c); opt.textContent = c.name; s.appendChild(opt); });
-                    }
-                });
-            } catch (e) { console.error(e); window.showAlert("เชื่อมต่อ Firebase ไม่สำเร็จ"); }
-            init(); window.updateLoginUI();
-        }
         
         window.initAuth();
     </script>
