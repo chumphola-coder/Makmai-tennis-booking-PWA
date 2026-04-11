@@ -107,7 +107,7 @@
             </div>
 
             <div id="logoContainer" class="flex-shrink-0 my-2 md:my-0 hidden md:block">
-                <img src="แมกไม้พื้นหลังดำ.jpg" class="h-16 md:h-20 w-auto max-w-[160px] object-contain rounded-lg shadow-sm bg-white p-1" alt="Makmai Logo" onerror="this.style.display='none'">
+                <img src="แมกไม้พื้นหลังดำ.jpg" class="h-16 md:h-24 w-16 md:w-24 object-cover rounded-lg shadow-sm bg-slate-800" alt="Makmai Logo" onerror="this.style.display='none'">
             </div>
 
             <div class="flex flex-1 justify-center md:justify-end gap-2 flex-wrap items-center w-full">
@@ -424,6 +424,92 @@
                 <button onclick="window.closeMaintenanceModal()" class="flex-1 px-4 py-2.5 md:py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors text-sm md:text-base">ข้ามไปก่อน</button>
                 <button id="btnStartMaintenance" onclick="window.executeAutoMaintenance()" class="flex-1 px-4 py-2.5 md:py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors shadow-lg text-sm md:text-base">เริ่มดำเนินการ</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Edit Booking Modal -->
+    <div id="editBookingModal" class="fixed inset-0 bg-slate-900/90 z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 relative shadow-2xl mx-2">
+            <h3 class="text-xl font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                แก้ไขวัน-เวลาจอง
+            </h3>
+            <div class="text-[11px] text-slate-500 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100" id="editModalNote">* รายการที่ชำระเงินแล้วสามารถแก้ไขได้ในกรณีที่แจ้งล่วงหน้าก่อนถึงเวลาเล่น 24 ชั่วโมงเท่านั้น (ค้างชำระแก้ไขได้ตลอดก่อนถึงเวลา)</div>
+            <form id="editBookingForm" class="space-y-4">
+                <input type="hidden" id="editBookingId">
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase">วันที่</label>
+                    <input type="text" id="editDateInput" name="date" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 bg-white cursor-pointer shadow-sm">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-xs font-bold text-slate-500 uppercase">สนาม</label>
+                    <select id="editCourt" name="court" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-sm font-bold text-slate-700 bg-white">
+                        <option value="สนาม 1">สนาม 1</option>
+                        <option value="สนาม 2">สนาม 2</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 uppercase">เวลาเริ่ม</label>
+                        <select id="editTime" name="time" onchange="window.updateEditHourOptions()" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 bg-white"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 uppercase">จำนวนชั่วโมง</label>
+                        <select id="editHours" name="hours" class="w-full border border-slate-200 rounded-lg px-2 py-2 text-sm font-bold text-blue-600 bg-white"></select>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6 pt-2">
+                    <button type="button" onclick="window.closeEditBookingModal()" class="flex-1 px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">ยกเลิก</button>
+                    <button type="submit" class="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg">บันทึกการแก้ไข</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="fixed inset-0 bg-slate-900/90 z-[70] hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white max-w-2xl w-full relative flex flex-col items-center p-0 md:p-4 rounded-none md:rounded-2xl shadow-2xl mx-2">
+            <button onclick="window.closeModal()" class="no-print absolute top-2 right-2 text-slate-400 hover:text-red-500 z-50 p-2 bg-white rounded-full shadow-sm">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div id="receiptContent" class="w-full space-y-4 bg-white"></div>
+            <div id="receiptActions" class="no-print mt-4 flex gap-3 relative z-10 p-2">
+                <button onclick="window.closeModal()" class="px-6 py-2 bg-slate-200 text-slate-600 rounded-lg font-bold hover:bg-slate-300 transition-colors cursor-pointer text-sm">ปิด</button>
+                <button type="button" onclick="window.print()" class="px-8 py-2 bg-blue-600 text-white rounded-lg font-bold shadow-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm">พิมพ์ / บันทึก PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/90 z-50 hidden items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-8 relative mx-1">
+            <button onclick="window.closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700">✕</button>
+            <div id="reportSummaryContent" class="space-y-6 w-full"></div>
+        </div>
+    </div>
+    
+    <!-- Backup Modal -->
+    <div id="backupModal" class="fixed inset-0 bg-slate-900/90 z-[60] hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl mx-2 text-center">
+            <button onclick="window.closeModal()" class="no-print absolute top-4 right-4 text-slate-400 z-10 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <div class="text-center mb-6 md:mb-8">
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                    <svg class="w-6 h-6 md:w-8 md:h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                </div>
+                <h3 class="text-lg md:text-xl font-black text-slate-800">จัดการฐานข้อมูล</h3>
+                <p class="text-xs md:text-sm text-slate-500 mt-1">Backup / Restore Database</p>
+            </div>
+            <div class="space-y-3 md:space-y-4">
+                <button onclick="window.backupData()" class="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-600 text-slate-600 py-3 md:py-4 rounded-xl font-bold flex flex-col items-center gap-1 md:gap-2 transition-all">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span class="text-sm md:text-base">ดาวน์โหลดไฟล์ JSON (ย้ายเครื่อง)</span>
+                </button>
+                <button onclick="window.triggerRestore()" class="w-full bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-600 border-2 border-transparent hover:border-amber-300 py-3 md:py-4 rounded-xl font-bold flex flex-col items-center gap-1 md:gap-2 transition-all">
+                    <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span class="text-sm md:text-base">นำเข้าข้อมูล (Import / Merge JSON)</span>
+                </button>
+            </div>
+            <p class="text-[10px] md:text-xs text-slate-400 text-center mt-4 md:mt-6">* ไฟล์ข้อมูลจะถูกบันทึกเป็นนามสกุล .json</p>
         </div>
     </div>
 
@@ -953,6 +1039,16 @@
 125/450,คุณณัฐฐณัณ พิมทะโนทัย
 125/451,คุณคุณธรรม  ประสิทธิ์รัฐสินธุ์`;
 
+        rawOwnerCSV.trim().split('\n').forEach(line => {
+            const parts = line.includes('\t') ? line.split('\t') : line.split(',');
+            if (parts.length >= 2) {
+                const addr = parts[0].trim().replace('125/', '');
+                const name = parts[1].trim();
+                if (addr) window.houseOwnerDB[addr] = name;
+            }
+        });
+
+        // --- 1. GLOBAL UTILITIES ---
         window.getThailandTimeParts = function() {
             const p = new Intl.DateTimeFormat('en-GB', {timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}).formatToParts(new Date());
             const r = {}; p.forEach(v => r[v.type] = v.value); if (r.hour === "24") r.hour = "00"; return r;
@@ -986,6 +1082,93 @@
             return window.getSlips(b).length > 0;
         };
 
+        // --- 2. MODALS AND ALERTS ---
+        window.customPrompt = function(title) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('promptModal');
+                document.getElementById('promptTitle').innerText = title;
+                const input = document.getElementById('promptInput');
+                input.value = '';
+                modal.classList.add('modal-active');
+                input.focus();
+
+                const submitHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(input.value); };
+                const cancelHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(null); };
+                const enterKeyHandler = (e) => { if (e.key === 'Enter') submitHandler(); };
+
+                const cleanup = () => {
+                    document.getElementById('promptSubmitBtn').removeEventListener('click', submitHandler);
+                    window.closePromptModal = cancelHandler;
+                    input.removeEventListener('keydown', enterKeyHandler);
+                };
+
+                document.getElementById('promptSubmitBtn').addEventListener('click', submitHandler);
+                window.closePromptModal = cancelHandler;
+                input.addEventListener('keydown', enterKeyHandler);
+            });
+        };
+
+        window.customConfirm = function(text, title="ยืนยันการดำเนินการ?", type="warning") {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModalGeneric');
+                document.getElementById('confirmTitleGeneric').innerText = title;
+                document.getElementById('confirmTextGeneric').innerText = text;
+                const btn = document.getElementById('confirmActionBtnGeneric');
+                const icon = document.getElementById('confirmIconGeneric');
+                
+                if (type === "danger") {
+                    btn.className = "flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg";
+                    icon.className = "w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4";
+                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                    document.getElementById('confirmTitleGeneric').className = 'text-xl font-bold text-red-600 mb-2';
+                } else if (type === "success") {
+                    btn.className = "flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg";
+                    icon.className = "w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4";
+                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                    document.getElementById('confirmTitleGeneric').className = 'text-xl font-bold text-emerald-600 mb-2';
+                } else {
+                    btn.className = "flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg";
+                    icon.className = "w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4";
+                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+                    document.getElementById('confirmTitleGeneric').className = 'text-xl font-bold text-slate-800 mb-2';
+                }
+
+                modal.classList.add('modal-active');
+
+                const submitHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(true); };
+                const cancelHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(false); };
+
+                const cleanup = () => {
+                    btn.removeEventListener('click', submitHandler);
+                    window.closeConfirmGeneric = cancelHandler;
+                };
+
+                btn.addEventListener('click', submitHandler);
+                window.closeConfirmGeneric = cancelHandler;
+            });
+        };
+
+        window.showAlert = (msg, type = 'warning') => { 
+            const box = document.getElementById('customAlert'); 
+            const icon = box.querySelector('svg');
+            
+            box.className = 'text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-[90%] md:w-auto max-w-sm fixed top-4 right-4 md:top-6 md:right-6 z-[9999] transition-all';
+            if (type === 'success') { box.classList.add('bg-emerald-600'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'; } 
+            else if (type === 'danger' || type === 'error') { box.classList.add('bg-red-600'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; } 
+            else { box.classList.add('bg-slate-800'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'; }
+            
+            box.querySelector('span').innerText = msg; 
+            box.style.display = 'flex'; 
+            setTimeout(() => box.style.display = 'none', 4000); 
+        };
+
+        window.closeModal = () => { document.querySelectorAll('.fixed').forEach(m => m.classList.remove('modal-active')); document.title = originalDocTitle; window.currentUploadId = null; };
+        window.closeEditBookingModal = () => { document.getElementById('editBookingModal').classList.remove('modal-active'); };
+        window.openBackupModal = () => { document.getElementById('backupModal').classList.add('modal-active'); };
+        window.closeMaintenanceModal = () => { document.getElementById('autoMaintenanceModal').classList.remove('modal-active'); };
+        window.closeUploadPrompt = () => { document.getElementById('uploadSlipPromptModal').classList.remove('modal-active'); }; 
+
+        // --- 3. FORM AND FIELD FILLERS ---
         window.updateHourOptions = function() {
             const el = document.getElementById('timeSelect'); if(!el.value) return;
             const start = parseInt(el.value.split(':')[0], 10);
@@ -1066,6 +1249,7 @@
             }
         };
 
+        // --- 4. OCR AI SCAN FUNCTION ---
         window.scanSlipAmountWithAI = async function(base64String) {
             const apiKey = window.geminiKey || "";
             const modelName = apiKey ? "gemini-2.5-flash" : "gemini-2.5-flash-preview-09-2025";
@@ -1108,7 +1292,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                     }
                     return 0;
                 } else if (response.status === 429 || response.status === 503) {
-                    console.warn(`Gemini API Busy (Status: ${response.status})`);
+                    console.warn(`Gemini API Busy or Rate Limited (Status: ${response.status})`);
                     return -1; 
                 } else {
                     console.error("Gemini API Error:", response.status, await response.text());
@@ -1135,91 +1319,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             });
         };
 
-        window.customPrompt = function(title) {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('promptModal');
-                document.getElementById('promptTitle').innerText = title;
-                const input = document.getElementById('promptInput');
-                input.value = '';
-                modal.classList.add('modal-active');
-                input.focus();
-
-                const submitHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(input.value); };
-                const cancelHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(null); };
-                const enterKeyHandler = (e) => { if (e.key === 'Enter') submitHandler(); };
-
-                const cleanup = () => {
-                    document.getElementById('promptSubmitBtn').removeEventListener('click', submitHandler);
-                    window.closePromptModal = cancelHandler;
-                    input.removeEventListener('keydown', enterKeyHandler);
-                };
-
-                document.getElementById('promptSubmitBtn').addEventListener('click', submitHandler);
-                window.closePromptModal = cancelHandler;
-                input.addEventListener('keydown', enterKeyHandler);
-            });
-        };
-
-        window.customConfirm = function(text, title="ยืนยันการดำเนินการ?", type="warning") {
-            return new Promise((resolve) => {
-                const modal = document.getElementById('confirmModalGeneric');
-                document.getElementById('confirmTitleGeneric').innerText = title;
-                document.getElementById('confirmTextGeneric').innerText = text;
-                const btn = document.getElementById('confirmActionBtnGeneric');
-                const icon = document.getElementById('confirmIconGeneric');
-                
-                if (type === "danger") {
-                    btn.className = "flex-1 px-4 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition-colors shadow-lg";
-                    icon.className = "w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4";
-                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
-                    document.getElementById('confirmTitleGeneric').className = "text-xl font-bold text-red-600 mb-2";
-                } else if (type === "success") {
-                    btn.className = "flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors shadow-lg";
-                    icon.className = "w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4";
-                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
-                    document.getElementById('confirmTitleGeneric').className = "text-xl font-bold text-emerald-600 mb-2";
-                } else {
-                    btn.className = "flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg";
-                    icon.className = "w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4";
-                    icon.innerHTML = '<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
-                    document.getElementById('confirmTitleGeneric').className = "text-xl font-bold text-slate-800 mb-2";
-                }
-
-                modal.classList.add('modal-active');
-
-                const submitHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(true); };
-                const cancelHandler = () => { modal.classList.remove('modal-active'); cleanup(); resolve(false); };
-
-                const cleanup = () => {
-                    btn.removeEventListener('click', submitHandler);
-                    window.closeConfirmGeneric = cancelHandler;
-                };
-
-                btn.addEventListener('click', submitHandler);
-                window.closeConfirmGeneric = cancelHandler;
-            });
-        };
-
-        window.showAlert = (msg, type = 'warning') => { 
-            const box = document.getElementById('customAlert'); 
-            const icon = box.querySelector('svg');
-            
-            box.className = 'text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 w-[90%] md:w-auto max-w-sm fixed top-4 right-4 md:top-6 md:right-6 z-[9999] transition-all';
-            if (type === 'success') { box.classList.add('bg-emerald-600'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>'; } 
-            else if (type === 'danger' || type === 'error') { box.classList.add('bg-red-600'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'; } 
-            else { box.classList.add('bg-slate-800'); icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>'; }
-            
-            box.querySelector('span').innerText = msg; 
-            box.style.display = 'flex'; 
-            setTimeout(() => box.style.display = 'none', 4000); 
-        };
-
-        window.closeModal = () => { document.querySelectorAll('.fixed').forEach(m => m.classList.remove('modal-active')); document.title = originalDocTitle; window.currentUploadId = null; };
-        window.closeEditBookingModal = () => { document.getElementById('editBookingModal').classList.remove('modal-active'); };
-        window.openBackupModal = () => { document.getElementById('backupModal').classList.add('modal-active'); };
-        window.closeMaintenanceModal = () => { document.getElementById('autoMaintenanceModal').classList.remove('modal-active'); };
-        window.closeUploadPrompt = () => { document.getElementById('uploadSlipPromptModal').classList.remove('modal-active'); }; 
-
+        // --- 5. AUTHENTICATION & LOGIN ---
         window.toggleLogin = function() {
             if (window.isLoggedIn) { 
                 window.isLoggedIn = window.adminMode = false; 
@@ -1272,7 +1372,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             const maxS = `${nextWE.getFullYear()}-${String(nextWE.getMonth()+1).padStart(2,'0')}-${String(nextWE.getDate()).padStart(2,'0')}`;
 
             if (window.isLoggedIn) {
-                b.innerHTML = '🚪 ออกจากระบบ'; b.className = 'px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 transition-all flex items-center gap-2 shadow-lg mt-2 md:mt-0 w-full md:w-auto justify-center';
+                b.innerHTML = '🚪 ออกจากระบบ'; b.classList.replace('bg-slate-800', 'bg-red-600'); b.classList.replace('hover:bg-slate-700', 'hover:bg-red-700');
                 lc.classList.remove('hidden'); rc.classList.replace('lg:col-span-12', 'lg:col-span-8'); ab.classList.remove('hidden'); if(ta) ta.classList.remove('hidden');
                 
                 if (logo) logo.classList.remove('hidden');
@@ -1287,7 +1387,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                     ad.className = 'px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-bold hover:bg-red-100 transition-all flex items-center gap-2 ml-2'; ad.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> 🔒 ปลดล็อกผู้ดูแล';
                 }
             } else {
-                b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.className = 'px-4 py-2 bg-slate-800 text-white rounded-xl text-sm font-bold hover:bg-slate-700 transition-all flex items-center gap-2 shadow-lg mt-2 md:mt-0 w-full md:w-auto justify-center';
+                b.innerHTML = '🔐 เข้าสู่ระบบ (สำหรับจอง)'; b.classList.replace('bg-red-600', 'bg-slate-800'); b.classList.replace('hover:bg-red-700', 'hover:bg-slate-700');
                 lc.classList.add('hidden'); rc.classList.replace('lg:col-span-8', 'lg:col-span-12'); ab.classList.add('hidden'); if(ta) ta.classList.add('hidden');
                 
                 if (logo) logo.classList.add('hidden');
@@ -1340,6 +1440,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             }
         };
 
+        // --- 6. NAVIGATION & SCHEDULING ---
         window.navigateWeek = function(dir) {
             const today = window.getThailandDate(), realW = window.getWeekString(today), dReal = window.getStartOfWeek(realW), dMax = new Date(dReal); dMax.setDate(dMax.getDate() + 7); const maxW = window.getWeekString(dMax);
             const dTar = window.getStartOfWeek(window.currentFilterWeek); dTar.setDate(dTar.getDate() + (dir * 7)); const tarW = window.getWeekString(dTar);
@@ -1385,6 +1486,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             }
         };
 
+        // --- 7. RENDER LOGIC ---
         window.renderSchedule = function() {
             const date = document.getElementById('scheduleDateInput').value; if (!date) return;
             const today = window.getThailandDate(), nowH = window.getThailandHour(), tbody = document.getElementById('scheduleGridBody'); tbody.innerHTML = '';
@@ -1467,8 +1569,10 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                     tr.className = `transition-colors relative ${isP ? 'bg-slate-100/60 opacity-80 border-slate-200' : 'bg-white cursor-pointer hover:bg-slate-50 border-emerald-500'} border-l-4 border-r-4 ${idx===0?'border-t-4':''} ${idx===bks.length-1?'border-b-4':'border-b border-slate-100'}`;
                     
                     tr.onclick = (e) => {
-                        if(e.target.closest('button') || e.target.closest('.edit-trigger')) return;
-                        window.syncScheduleToBooking(b, true);
+                        const cellIndex = e.target.closest('td') ? e.target.closest('td').cellIndex : -1;
+                        if (cellIndex >= 0 && cellIndex <= 4) {
+                            window.syncScheduleToBooking(b, true);
+                        }
                     };
                     
                     let statusText = '', badgeBg = '', badgeText = '';
@@ -1532,6 +1636,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             });
         };
 
+        // --- 8. SLIP MANAGEMENT & MODALS ---
         window.updateSlipModalView = () => {
             const img = document.getElementById('slipPreview');
             img.style.opacity = 0;
@@ -1731,6 +1836,35 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             }
         };
 
+        // --- 9. EXPORT, REPORT, PRINT & MAINTENANCE ---
+        window.openExportModal = () => {
+            const todayStr = window.getThailandDate();
+            if (!document.getElementById('exportStartDate')._flatpickr) {
+                flatpickr("#exportStartDate", { locale: 'th', altInput: true, altFormat: "j M Y", dateFormat: "Y-m-d", defaultDate: todayStr, disableMobile: true });
+                flatpickr("#exportEndDate", { locale: 'th', altInput: true, altFormat: "j M Y", dateFormat: "Y-m-d", defaultDate: todayStr, disableMobile: true });
+            }
+            document.getElementById('exportExcelModal').classList.add('modal-active');
+        };
+
+        window.executeExcelExport = () => {
+            const sd = document.getElementById('exportStartDate').value, ed = document.getElementById('exportEndDate').value;
+            if (!sd || !ed) return window.showAlert("กรุณาเลือกช่วงวันที่"); if (sd > ed) return window.showAlert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
+            
+            const getStatusTxt = (b) => {
+                if(!window.hasSlip(b)) return 'ค้างชำระ';
+                const exp = Number(b.totalPrice)||0;
+                const scn = b.scannedAmount !== undefined ? Number(b.scannedAmount) : exp;
+                if(scn < exp) return 'ยอดไม่ครบ';
+                if(scn > exp && !b.isMultipleBooking) return 'ชำระเกิน';
+                return 'ชำระแล้ว';
+            };
+
+            const data = window.allBookingsCache.filter(b => b.date >= sd && b.date <= ed && !b.isCustomerProfile).sort((a,b)=>a.date!==b.date?a.date.localeCompare(b.date):a.time.localeCompare(b.time)).map((b, i) => ({ 'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 'เจ้าของแปลง': b.ownerName||'-', 'เบอร์โทร': b.phoneNumber||'-', 'ยอดรวม (บาท)': b.totalPrice, 'ยอดโอนจริง (บาท)': (b.scannedAmount !== undefined ? b.scannedAmount : (window.hasSlip(b)?b.totalPrice:0)), 'สถานะ': getStatusTxt(b), 'อ้างอิง': window.generateRef(b) }));
+            if (!data.length) return window.showAlert("ไม่พบข้อมูลในช่วงที่เลือก");
+            XLSX.writeFile({SheetNames:["Bookings"], Sheets:{Bookings:XLSX.utils.json_to_sheet(data)}}, `Makmai_Tennis_Report_${sd}_to_${ed}.xlsx`);
+            window.closeModal(); window.showAlert("ดาวน์โหลด Excel สำเร็จ", "success");
+        };
+
         window.openReportModal = () => {
              const list = window.allBookingsCache, today = window.getThailandDate(), curM = today.slice(0, 7), curY = today.slice(0, 4), paidList = list.filter(b => window.hasSlip(b) && !b.isCustomerProfile);
              const mTotal = paidList.filter(b => b.date && b.date.startsWith(curM)).reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
@@ -1818,25 +1952,6 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
              }, 300);
         };
 
-        window.executeExcelExport = () => {
-            const sd = document.getElementById('exportStartDate').value, ed = document.getElementById('exportEndDate').value;
-            if (!sd || !ed) return window.showAlert("กรุณาเลือกช่วงวันที่"); if (sd > ed) return window.showAlert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
-            
-            const getStatusTxt = (b) => {
-                if(!window.hasSlip(b)) return 'ค้างชำระ';
-                const exp = Number(b.totalPrice)||0;
-                const scn = b.scannedAmount !== undefined ? Number(b.scannedAmount) : exp;
-                if(scn < exp) return 'ยอดไม่ครบ';
-                if(scn > exp && !b.isMultipleBooking) return 'ชำระเกิน';
-                return 'ชำระแล้ว';
-            };
-
-            const data = window.allBookingsCache.filter(b => b.date >= sd && b.date <= ed && !b.isCustomerProfile).sort((a,b)=>a.date!==b.date?a.date.localeCompare(b.date):a.time.localeCompare(b.time)).map((b, i) => ({ 'ลำดับ': i+1, 'วันที่จอง': b.date, 'เวลาเริ่ม': b.time, 'จำนวน ชม.': b.hours, 'สนาม': b.court, 'ชื่อผู้จอง': b.customerName, 'บ้านเลขที่': `125/${b.address}`, 'เจ้าของแปลง': b.ownerName||'-', 'เบอร์โทร': b.phoneNumber||'-', 'ยอดรวม (บาท)': b.totalPrice, 'ยอดโอนจริง (บาท)': (b.scannedAmount !== undefined ? b.scannedAmount : (window.hasSlip(b)?b.totalPrice:0)), 'สถานะ': getStatusTxt(b), 'อ้างอิง': window.generateRef(b) }));
-            if (!data.length) return window.showAlert("ไม่พบข้อมูลในช่วงที่เลือก");
-            XLSX.writeFile({SheetNames:["Bookings"], Sheets:{Bookings:XLSX.utils.json_to_sheet(data)}}, `Makmai_Tennis_Report_${sd}_to_${ed}.xlsx`);
-            window.closeModal(); window.showAlert("ดาวน์โหลด Excel สำเร็จ", "success");
-        };
-
         window.printWeeklySchedule = () => {
             const today = window.getThailandDate(); let html = `<div class="p-6 bg-white w-full"><div class="text-center mb-4 border-b border-slate-200 pb-3"><h2 class="text-xl font-black text-slate-800">ตารางการจองสนาม (8 วัน)</h2><p class="text-xs text-slate-500">ข้อมูล ณ วันที่ ${window.formatThaiDate(today)} เวลา ${String(window.getThailandHour()).padStart(2,'0')}:${String(window.getThailandTimeParts().minute).padStart(2,'0')} น.</p></div><div class="flex flex-wrap justify-between items-start w-full">`;
             for (let i=0; i<=7; i++) {
@@ -1860,7 +1975,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             const b = window.allBookingsCache.find(x => String(x.id) === String(id)); if (!b) return window.showAlert("ไม่พบข้อมูล");
             const hrs = Number(b.hours||0), startH = parseInt((b.time||"00").split(':')[0],10); let std = 0, pk = 0;
             for(let i=0; i<hrs; i++) { if (startH+i >= 18) pk++; else std++; } const total = std*100 + pk*150;
-            const rHtml = (type) => `<div class="border border-slate-800 p-4 relative bg-white" style="page-break-inside: avoid;"><div class="flex justify-between items-start mb-2"><div class="flex items-start gap-2"><img src="แมกไม้พื้นหลังดำ.jpg" class="h-10 w-auto object-contain" onerror="this.style.display='none'"><div><h2 class="text-base font-black text-slate-800 leading-tight">MAKMAI TENNIS CLUB</h2><p class="text-[9px] font-bold text-slate-500">ใบเสร็จรับเงิน / Receipt</p></div></div><div class="text-right"><div class="text-[9px] font-bold text-slate-500 mb-0.5">${type==='copy'?'สำเนา':'ต้นฉบับ'}</div><div class="font-mono text-xs font-bold text-slate-700">#${window.generateRef(b)}</div><div class="text-[9px] font-medium">วันที่: ${window.formatThaiDate(window.getThailandDate())}</div></div></div><div class="border-t border-slate-800 py-1.5 my-1"><div class="mb-1.5"><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">ผู้มาใช้บริการ / Customer</h3><div class="grid grid-cols-2 gap-1 text-[11px]"><div><span class="text-slate-500">ผู้จอง:</span> <span class="font-bold">${b.customerName}</span></div><div><span class="text-slate-500">บ้านเลขที่:</span> <span class="font-bold">125/${b.address}</span></div><div><span class="text-slate-500">เจ้าของแปลง:</span> <span class="font-bold">${b.ownerName||'-'}</span></div></div></div><div><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">รายละเอียด / Booking</h3><div class="grid grid-cols-3 gap-1 text-[11px]"><div><span class="text-slate-500">สนาม:</span> <span class="font-bold">${b.court}</span></div><div><span class="text-slate-500">เริ่ม:</span> <span class="font-bold">${b.time} น.</span></div><div><span class="text-slate-500">เวลา:</span> <span class="font-bold">${b.hours} ชม.</span></div></div></div></div><div class="space-y-0.5 border-t border-slate-800 pt-1.5">${std>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 06:00-18:00 (${std} ชม.)</span><span class="font-mono font-bold">฿${std*100}</span></div>`:''}${pk>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 18:00-21:00 (${pk} ชม.)</span><span class="font-mono font-bold">฿${pk*150}</span></div>`:''}<div class="flex justify-between mt-1 pt-1 border-t border-slate-300"><span class="text-xs font-black text-slate-800">ยอดรวม / Total</span><span class="text-lg font-black text-slate-900 font-mono">฿${total}</span></div></div><div class="flex justify-end pt-8 mt-2"><div class="text-center w-28"><div class="border-b border-slate-400 mb-1 h-6"></div><span class="text-[8px] font-bold text-slate-500">ผู้รับเงิน / Recipient</span></div></div></div>`;
+            const rHtml = (type) => `<div class="border border-slate-800 p-4 relative bg-white" style="page-break-inside: avoid;"><div class="flex justify-between items-start mb-2"><div class="flex items-start gap-2"><img src="แมกไม้พื้นหลังดำ.jpg" class="w-10 h-10 object-contain" onerror="this.style.display='none'"><div><h2 class="text-base font-black text-slate-800 leading-tight">MAKMAI TENNIS CLUB</h2><p class="text-[9px] font-bold text-slate-500">ใบเสร็จรับเงิน / Receipt</p></div></div><div class="text-right"><div class="text-[9px] font-bold text-slate-500 mb-0.5">${type==='copy'?'สำเนา':'ต้นฉบับ'}</div><div class="font-mono text-xs font-bold text-slate-700">#${window.generateRef(b)}</div><div class="text-[9px] font-medium">วันที่: ${window.formatThaiDate(window.getThailandDate())}</div></div></div><div class="border-t border-slate-800 py-1.5 my-1"><div class="mb-1.5"><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">ผู้มาใช้บริการ / Customer</h3><div class="grid grid-cols-2 gap-1 text-[11px]"><div><span class="text-slate-500">ผู้จอง:</span> <span class="font-bold">${b.customerName}</span></div><div><span class="text-slate-500">บ้านเลขที่:</span> <span class="font-bold">125/${b.address}</span></div><div><span class="text-slate-500">เจ้าของแปลง:</span> <span class="font-bold">${b.ownerName||'-'}</span></div></div></div><div><h3 class="text-[9px] font-bold text-slate-800 border-b border-slate-300 pb-0.5 mb-1">รายละเอียด / Booking</h3><div class="grid grid-cols-3 gap-1 text-[11px]"><div><span class="text-slate-500">สนาม:</span> <span class="font-bold">${b.court}</span></div><div><span class="text-slate-500">เริ่ม:</span> <span class="font-bold">${b.time} น.</span></div><div><span class="text-slate-500">เวลา:</span> <span class="font-bold">${b.hours} ชม.</span></div></div></div></div><div class="space-y-0.5 border-t border-slate-800 pt-1.5">${std>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 06:00-18:00 (${std} ชม.)</span><span class="font-mono font-bold">฿${std*100}</span></div>`:''}${pk>0?`<div class="flex justify-between text-[10px]"><span class="text-slate-600">ค่าสนาม 18:00-21:00 (${pk} ชม.)</span><span class="font-mono font-bold">฿${pk*150}</span></div>`:''}<div class="flex justify-between mt-1 pt-1 border-t border-slate-300"><span class="text-xs font-black text-slate-800">ยอดรวม / Total</span><span class="text-lg font-black text-slate-900 font-mono">฿${total}</span></div></div><div class="flex justify-end pt-8 mt-2"><div class="text-center w-28"><div class="border-b border-slate-400 mb-1 h-6"></div><span class="text-[8px] font-bold text-slate-500">ผู้รับเงิน / Recipient</span></div></div></div>`;
             document.getElementById('receiptContent').innerHTML = `<div class="flex flex-col gap-0">${rHtml('copy')}<div class="w-full py-4 relative flex items-center justify-center print:py-6"><div class="absolute w-full border-b-2 border-dashed border-slate-400 top-1/2"></div><span class="relative bg-white px-2 text-[8px] text-slate-500 font-mono z-10">✂ ตัดตามรอยประ</span></div>${rHtml('original')}</div>`;
             document.title = `${b.ownerName?b.ownerName.split(' ')[0]:b.customerName}_${window.generateRef(b).replace(/\//g,'-')}`;
             document.querySelector('#receiptModal > div').className = 'bg-white max-w-xl w-full relative flex flex-col items-center p-0 md:p-4 shadow-2xl';
@@ -1920,7 +2035,6 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             const fileSuffix = `${minDate}_ถึง_${maxDate}`;
 
             try {
-                // 1. Export Excel
                 btn.innerText = "กำลังโหลด Excel... (1/3)";
                 const excelData = records.sort((a,b) => { if (a.date !== b.date) return a.date.localeCompare(b.date); return (a.time||"").localeCompare(b.time||""); }).map((b, i) => {
                     const hasSlip = window.hasSlip(b); const exp = Number(b.totalPrice)||0; const scn = b.scannedAmount !== undefined ? Number(b.scannedAmount) : exp;
@@ -1932,13 +2046,11 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
                 XLSX.writeFile(wb, `Makmai_Backup_Excel_${fileSuffix}.xlsx`);
                 await new Promise(r => setTimeout(r, 1500));
 
-                // 2. Export JSON
                 btn.innerText = "กำลังโหลด JSON... (2/3)";
                 const jsonBlob = new Blob([JSON.stringify(records, null, 2)], {type: "application/json"});
                 const jsonUrl = URL.createObjectURL(jsonBlob); const a = document.createElement('a'); a.href = jsonUrl; a.download = `Makmai_Backup_JSON_${fileSuffix}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(jsonUrl);
                 await new Promise(r => setTimeout(r, 1500));
 
-                // 3. Cleanup Online DB
                 btn.innerText = "กำลังลบข้อมูลเก่า... (3/3)";
                 for (const b of records) { await deleteDoc(doc(collectionRef, String(b.id))); }
 
@@ -1994,7 +2106,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
         };
 
         // --- 10. FORM SUBMISSIONS ---
-        if (document.getElementById('bookingForm')) document.getElementById('bookingForm').onsubmit = async (e) => {
+        document.getElementById('bookingForm').onsubmit = async (e) => {
             e.preventDefault(); const btn = document.getElementById('submitBtn'); const fd = new FormData(e.target);
             try {
                 btn.disabled = true; btn.innerHTML = '<span class="flex items-center gap-2"><svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>กำลังตรวจสอบ...</span>';
@@ -2091,7 +2203,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message, "danger"); } finally { btn.disabled = false; btn.innerHTML = '<span>ยืนยันการจอง</span>'; }
         };
 
-        if (document.getElementById('editBookingForm')) document.getElementById('editBookingForm').onsubmit = async (e) => {
+        document.getElementById('editBookingForm').onsubmit = async (e) => {
             e.preventDefault(); const btn = document.querySelector('#editBookingForm button[type="submit"]'); const fd = new FormData(e.target);
             try {
                 btn.disabled = true; btn.innerHTML = 'กำลังบันทึก...';
@@ -2120,7 +2232,7 @@ If you absolutely cannot find the amount, return {"amount": 0}`;
             } catch (err) { console.error(err); window.showAlert("เกิดข้อผิดพลาด: " + err.message, "danger"); } finally { btn.disabled = false; btn.innerHTML = 'บันทึกการแก้ไข'; }
         };
 
-        if (document.getElementById('updateSlipInput')) document.getElementById('updateSlipInput').onchange = async (e) => {
+        document.getElementById('updateSlipInput').onchange = async (e) => {
             const files = e.target.files; if (files.length === 0 || !window.currentUploadId) return;
             window.closeUploadPrompt(); 
             const isMultiple = document.getElementById('updateIsMultipleSlip').checked;
